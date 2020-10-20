@@ -5,7 +5,7 @@ package uk.co.whichdigital.ksv
 object Util {
     fun createLineSplitter(
         commaChar: Char = ',',
-        quoteChar: Char = '"'
+        quoteChar: Char = '"',
     ): LineSplitter = {
         val line = this
         var numberOfDoubleQuotesEncountered = 0
@@ -49,7 +49,7 @@ object Util {
 
     fun addTrimQuotesToNormalizeColumnNames(
         quoteChar: Char,
-        originalNormalizeColumnNames: StringModifier
+        originalNormalizeColumnNames: StringModifier,
     ): StringModifier = {
         originalNormalizeColumnNames(it.trimThenTrimQuotesThenTrim(quoteChar))
     }
@@ -62,8 +62,8 @@ object Util {
             invalidLineCount: Int,
             rejectedRecordCount: Int,
             conversionErrorCount: Int,
-            itemsCreated: Int
-        )->Unit)? = null
+            itemsCreated: Int,
+        )->Unit)? = null,
     ): List<T> {
 
         var invalidLinesCount = 0
@@ -98,7 +98,7 @@ object Util {
                     invalidLinesCount,
                     rejectedCsvRecordCount,
                     conversionExceptionCount,
-                    itemsCreatedCount
+                    itemsCreatedCount,
                 )
             }
         }

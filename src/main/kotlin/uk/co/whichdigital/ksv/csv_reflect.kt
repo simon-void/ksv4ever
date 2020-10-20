@@ -15,7 +15,7 @@ annotation class CsvRow
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class CsvValue(
-    val name: String = CSV_DEFAULT_NAME
+    val name: String = CSV_DEFAULT_NAME,
 )
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
@@ -24,7 +24,7 @@ annotation class CsvValue(
 annotation class CsvTimestamp(
     val name: String = CSV_DEFAULT_NAME,
     /**format is either a single timestamp pattern (e.g. "yyyy/MM/dd" ) or multiple separated by '|' (e.g. "yyyy/MM/dd|dd-MM-yyyy" )*/
-    val format: String
+    val format: String,
 )
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
@@ -32,13 +32,13 @@ annotation class CsvTimestamp(
 @MustBeDocumented
 annotation class CsvGeneric(
     val name: String = CSV_DEFAULT_NAME,
-    val converterName: String
+    val converterName: String,
 )
 
 sealed class CsvRowParam(
     val rowClassName: String,
     val param: KParameter,
-    val normalizedColumnName: String
+    val normalizedColumnName: String,
 ) {
     /** has a default value */
     val isParamOptional: Boolean get() = param.isOptional
@@ -49,7 +49,7 @@ sealed class CsvRowParam(
     class ByNoAnnotation(
         rowClassName: String,
         param: KParameter,
-        normalizeName: String.() -> String
+        normalizeName: String.() -> String,
     ) : CsvRowParam(
         rowClassName,
         param,
@@ -60,7 +60,7 @@ sealed class CsvRowParam(
         rowClassName: String,
         param: KParameter,
         csvValue: CsvValue,
-        normalizeName: String.() -> String
+        normalizeName: String.() -> String,
     ) : CsvRowParam(
         rowClassName,
         param,
@@ -71,11 +71,11 @@ sealed class CsvRowParam(
         rowClassName: String,
         param: KParameter,
         csvTimestamp: CsvTimestamp,
-        normalizeName: String.() -> String
+        normalizeName: String.() -> String,
     ) : CsvRowParam(
         rowClassName,
         param,
-        pickName(csvTimestamp.name, param.name).normalizeName()
+        pickName(csvTimestamp.name, param.name).normalizeName(),
     ) {
         val format: String = csvTimestamp.format
 
@@ -98,11 +98,11 @@ sealed class CsvRowParam(
         rowClassName: String,
         param: KParameter,
         csvGeneric: CsvGeneric,
-        normalizeName: String.() -> String
+        normalizeName: String.() -> String,
     ) : CsvRowParam(
         rowClassName,
         param,
-        pickName(csvGeneric.name, param.name).normalizeName()
+        pickName(csvGeneric.name, param.name).normalizeName(),
     ) {
         val converterName: String = csvGeneric.converterName
 
@@ -139,7 +139,7 @@ private inline fun <reified T> KAnnotatedElement.hasAnnotation(): Boolean =
 
 class ReflectiveItemFactory<Row : Any>(
     rowClass: KClass<Row>,
-    private val normalizeParamName: String.() -> String = { this }
+    private val normalizeParamName: String.() -> String = { this },
 ) {
 
     private val rowClassName: String
@@ -223,26 +223,26 @@ class ReflectiveItemFactory<Row : Any>(
 
     fun getSuperfluousNormalizedColumnNames(header: CsvHeader): Set<String> {
 
-        fun <T> Iterable<T>.countOccurence(): Map<T, Int> = this.groupingBy { it }.eachCount()
-        fun <T> List<T>.elementsWithMultipleOccurence(): Set<Pair<T, Int>> =
-            this.countOccurence().entries.filter { it.value > 1 }.map { it.key to it.value }.toSet()
+        fun <T> Iterable<T>.countOccurrence(): Map<T, Int> = this.groupingBy { it }.eachCount()
+        fun <T> List<T>.elementsWithMultipleOccurrence(): Set<Pair<T, Int>> =
+            this.countOccurrence().entries.filter { it.value > 1 }.map { it.key to it.value }.toSet()
 
-        fun <T> List<T>.assertNoMultipleOccurence(listName: String): Set<T> = this.let { list ->
+        fun <T> List<T>.assertNoMultipleOccurrence(listName: String): Set<T> = this.let { list ->
             val set = list.toSet()
             if (set.size == list.size) {
                 return set
             } else {
-                val elementsWithMultipleOccurence: Set<Pair<T, Int>> = list.elementsWithMultipleOccurence()
+                val elementsWithMultipleOccurrence: Set<Pair<T, Int>> = list.elementsWithMultipleOccurrence()
                 throw IllegalArgumentException(
                     """
                     some columnNames show up multiple times in $listName: 
-                    ${elementsWithMultipleOccurence.joinToString { "${it.first} (${it.second}times)" }}
+                    ${elementsWithMultipleOccurrence.joinToString { "${it.first} (${it.second}times)" }}
                     """.trimIndent()
                 )
             }
         }
 
-        val providedNames: Set<String> = header.normalizedColumnNames.assertNoMultipleOccurence("(csv-)header")
+        val providedNames: Set<String> = header.normalizedColumnNames.assertNoMultipleOccurrence("(csv-)header")
         val neededNames: Set<String> = csvRowParamByNormalizedColumnName.keys
 
         if (!providedNames.containsAll(neededNames)) {
@@ -316,7 +316,7 @@ class ReflectiveItemFactory<Row : Any>(
 fun <ItemType : Any> record2Item(
     header: CsvHeader,
     record: CsvRecord,
-    itemFactory: ReflectiveItemFactory<ItemType>
+    itemFactory: ReflectiveItemFactory<ItemType>,
 ): Record2ItemResult<ItemType> {
     val providedNormalizedColumnNames = header.normalizedColumnNames
     val unusedNormalizedColumnNames: Set<String> = itemFactory.getSuperfluousNormalizedColumnNames(header)

@@ -12,7 +12,7 @@ inline fun <reified T : Any> csv2List(
         invalidLineCount: Int,
         rejectedRecordCount: Int,
         conversionErrorCount: Int,
-        itemsCreated: Int
+        itemsCreated: Int,
     )->Unit)? = null
 ): List<T> {
     val itemFactory = ReflectiveItemFactory(T::class, sourceConfig.effectiveNormalizeColumnName)
@@ -50,7 +50,7 @@ sealed class ParsedCsvLine<out T:Any> {
 
 inline fun <reified T : Any> csv2whatever(
     sourceConfig: CsvSourceConfig,
-    consumeCsvTable: (CsvTable) -> T
+    consumeCsvTable: (CsvTable) -> T,
 ): T {
     sourceConfig.bufferedReader().useLines { lines: Sequence<String> ->
         val lineIterator = lines.iterator()

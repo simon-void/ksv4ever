@@ -6,7 +6,7 @@ data class CsvTable(val header: CsvHeader, val csvRecords: Sequence<ProtoCsvReco
 class CsvHeader(
     private val line: String,
     private val normalizeColumnName: StringModifier,
-    splitByComma: LineSplitter
+    splitByComma: LineSplitter,
 ) {
     val normalizedColumnNames: List<String> = line.splitByComma().map { normalizeColumnName(it) }
     val numberOrColumns: Int = normalizedColumnNames.size
@@ -80,7 +80,7 @@ class CsvRecord private constructor(
         fun constructFrom(
             line: String,
             expectedNumberOfElements: Int,
-            splitByComma: LineSplitter
+            splitByComma: LineSplitter,
         ): ProtoCsvRecord {
             val elements: List<String> = line.splitByComma()
             val actualSize = elements.size

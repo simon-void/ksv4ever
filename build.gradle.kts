@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
 }
 
 group = "uk.co.whichdigital.ksv"
-version = "1.0.0"  //-SNAPSHOT
+version = "1.0.1"  //-SNAPSHOT
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -28,6 +28,9 @@ tasks {
         kotlinOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
             jvmTarget = java.sourceCompatibility.toString()
+            kotlinOptions {
+                languageVersion = "1.4"
+            }
         }
     }
 

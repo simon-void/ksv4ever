@@ -8,7 +8,10 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
 
 
-fun convert(token: String?, csvRowParam: CsvRowParam): Any? {
+fun convert(
+        token: String?,
+        csvRowParam: CsvRowParam,
+): Any? {
     if (token.isNullOrBlank()) {
         return null
     }
@@ -58,7 +61,7 @@ private fun String.toLocalDateTime(csvRowParam: CsvRowParam.ByCsvTimestamp): Loc
 private fun <T> parseTimestamp(
     timestampToken: String,
     formats: String,
-    convertToTimestamp: (String, DateTimeFormatter) -> T
+    convertToTimestamp: (String, DateTimeFormatter) -> T,
 ): T? {
     if (timestampToken.length <= 1 || timestampToken.toCharArray().none(Char::isDigit)) return null
     var lastException: DateTimeParseException? = null
@@ -79,7 +82,7 @@ private fun <T> parseTimestamp(
 
 inline fun <reified T : Any> registerGenericConverter(
     name: String,
-    noinline convert: (String) -> T
+    noinline convert: (String) -> T,
 ) {
     GenericConverterRegistry.register(
         GenericConverter(

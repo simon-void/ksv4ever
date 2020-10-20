@@ -14,7 +14,7 @@ data class CsvSourceConfig (
     private val quoteChar: Char = '"',
     val fixLine: StringModifier = ::removeBomChars,
     val keepCsvRecord: (CsvHeader, CsvRecord) -> Boolean = keepAll,
-    private val normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes
+    private val normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes,
 ) {
     val splitByComma: LineSplitter = createLineSplitter(commaChar, quoteChar)
     val effectiveNormalizeColumnName: StringModifier = addTrimQuotesToNormalizeColumnNames(quoteChar, normalizeColumnName)
