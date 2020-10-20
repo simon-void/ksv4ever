@@ -1,4 +1,4 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 import io.mockk.every
 import io.mockk.mockk
@@ -21,11 +21,15 @@ class TestConvertToken {
         @ParameterizedTest
         @MethodSource("no csv annotation to basic type TestDataProvider")
         fun `test no csv annotation to basic type conversion`(
-            rowParam: CsvRowParam.ByNoAnnotation,
-            token: String?,
-            expectedValue: Any?
+                rowParam: CsvRowParam.ByNoAnnotation,
+                token: String?,
+                expectedValue: Any?
         ) {
-            val actualValue: Any? = convert(token, rowParam)
+            val actualValue: Any? = convert(
+                    token,
+                    rowParam,
+                    "name of the csv column the toke was found in",
+            )
 
             assertEquals(expectedValue, actualValue, "for token \"$token\"")
         }
@@ -67,11 +71,15 @@ class TestConvertToken {
         @ParameterizedTest
         @MethodSource("csvValue to basic type TestDataProvider")
         fun `test csvValue to basic type conversion`(
-            rowParam: CsvRowParam.ByCsvValue,
-            token: String?,
-            expectedValue: Any?
+                rowParam: CsvRowParam.ByCsvValue,
+                token: String?,
+                expectedValue: Any?
         ) {
-            val actualValue: Any? = convert(token, rowParam)
+            val actualValue: Any? = convert(
+                    token,
+                    rowParam,
+                    "name of the csv column the toke was found in",
+            )
 
             assertEquals(expectedValue, actualValue, "for token \"$token\"")
         }
@@ -113,11 +121,15 @@ class TestConvertToken {
         @ParameterizedTest
         @MethodSource("csvTimestamp to LocalDateTime TestDataProvider")
         fun `test CsvTimestamp to LocalDateTime conversion`(
-            rowParam: CsvRowParam.ByCsvTimestamp,
-            token: String?,
-            expectedDateTime: LocalDateTime?
+                rowParam: CsvRowParam.ByCsvTimestamp,
+                token: String?,
+                expectedDateTime: LocalDateTime?
         ) {
-            val actualDateTime = convert(token, rowParam) as LocalDateTime?
+            val actualDateTime: Any? = convert(
+                    token,
+                    rowParam,
+                    "name of the csv column the toke was found in",
+            ) as LocalDateTime?
 
             assertEquals(expectedDateTime, actualDateTime, "token: \"$token\", expected format: \"${rowParam.format}\"")
         }
@@ -125,11 +137,11 @@ class TestConvertToken {
         @ParameterizedTest
         @MethodSource("csvTimestamp to LocalDate TestDataProvider")
         fun `test CsvTimestamp to LocalDate conversion`(
-            rowParam: CsvRowParam.ByCsvTimestamp,
-            token: String?,
-            expectedDate: LocalDate?
+                rowParam: CsvRowParam.ByCsvTimestamp,
+                token: String?,
+                expectedDate: LocalDate?
         ) {
-            val actualDate = convert(token, rowParam) as LocalDate?
+            val actualDate = convert(token, rowParam, "name of the csv column the toke was found in") as LocalDate?
 
             assertEquals(expectedDate, actualDate, "token: \"$token\", expected format: \"${rowParam.format}\"")
         }
@@ -209,9 +221,10 @@ class TestConvertToken {
                 it == "goo"
             }
             val gooToTrueCsvRowParam = mockCsvGeneric("gooToTrue", Boolean::class)
+            val columnName = "name of the csv column the toke was found in"
 
-            assertTrue(convert("goo", gooToTrueCsvRowParam) as Boolean)
-            assertFalse(convert("GOO", gooToTrueCsvRowParam) as Boolean)
+            assertTrue(convert("goo", gooToTrueCsvRowParam, columnName) as Boolean)
+            assertFalse(convert("GOO", gooToTrueCsvRowParam, columnName) as Boolean)
         }
     }
 }

@@ -1,11 +1,11 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
-import uk.co.whichdigital.ksv.Util.createLineSplitter
+import net.simonvoid.ksv4ever.Util.createLineSplitter
 
 class TestUtil {
 

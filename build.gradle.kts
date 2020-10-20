@@ -4,8 +4,8 @@ plugins {
     kotlin("jvm") version "1.4.10"
 }
 
-group = "uk.co.whichdigital.ksv"
-version = "1.0.1"  //-SNAPSHOT
+group = "net.simonvoid.ksv4ever"
+version = "1.0.2"  //-SNAPSHOT
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {

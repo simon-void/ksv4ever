@@ -1,4 +1,4 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -10,13 +10,13 @@ import java.time.LocalDate
 // definition of expected content (with types) of a csv source
 @CsvRow
 data class DataRow(
-    @CsvValue(name = "RQIA") val id: String,
-    @CsvValue(name = "Number of beds") val bedCount: Int?, // types can be nullable
-    val addressLine1: String,                              // without annotation it's assumed the the column name is the the field name
-    val city: String = "London",                           // without value in the csv file the Kotlin default value is used
-    @CsvTimestamp(name = "latest check", format = "yyyy/MM/dd|dd/MM/yyyy")
+        @CsvValue(name = "RQIA") val id: String,
+        @CsvValue(name = "Number of beds") val bedCount: Int?, // types can be nullable
+        val addressLine1: String,                              // without annotation it's assumed the the column name is the the field name
+        val city: String = "London",                           // without value in the csv file the Kotlin default value is used
+        @CsvTimestamp(name = "latest check", format = "yyyy/MM/dd|dd/MM/yyyy")
     val latestCheckDate: LocalDate?,                       // multiple formats can be provided seperated by '|'
-    @CsvGeneric(name = "offers Cola, Sprite or Fanta", converterName = "beverageBoolean")
+        @CsvGeneric(name = "offers Cola, Sprite or Fanta", converterName = "beverageBoolean")
     val refreshments: Boolean?                             // a user-defined converter can be used
 )
 

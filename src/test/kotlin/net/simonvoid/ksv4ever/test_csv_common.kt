@@ -1,4 +1,4 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -14,20 +14,20 @@ private const val DEFAULT_NR = 96
 
 @CsvRow
 data class Row1(
-    @CsvValue(name = "town") val a: String,
-    @CsvValue var nr: Int?
+        @CsvValue(name = "town") val a: String,
+        @CsvValue var nr: Int?
 )
 
 @CsvRow
 data class Row2(
-    @CsvValue(name = "town") val a: String = DEFAULT_TOWN,
-    @CsvValue var nr: Int? = DEFAULT_NR
+        @CsvValue(name = "town") val a: String = DEFAULT_TOWN,
+        @CsvValue var nr: Int? = DEFAULT_NR
 )
 
 @CsvRow
 data class Row3(
-    @CsvTimestamp(format = "[d][dd]/[M][MM]/yyyy") val date: LocalDate,
-    @CsvTimestamp(name = "date_time", format = "yyyy-[M][MM]-[d][dd] [H][HH]:mm:ss") val dateTime: LocalDateTime?
+        @CsvTimestamp(format = "[d][dd]/[M][MM]/yyyy") val date: LocalDate,
+        @CsvTimestamp(name = "date_time", format = "yyyy-[M][MM]-[d][dd] [H][HH]:mm:ss") val dateTime: LocalDateTime?
 )
 
 @CsvRow
@@ -37,8 +37,8 @@ data class Row4(
 
 @CsvRow
 data class Row5(
-    @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness1: FuzyBoolean = FuzyBoolean.UNKNOWN,
-    @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness2: FuzyBoolean?
+        @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness1: FuzyBoolean = FuzyBoolean.UNKNOWN,
+        @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness2: FuzyBoolean?
 )
 
 enum class FuzyBoolean {

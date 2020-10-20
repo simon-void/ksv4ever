@@ -1,20 +1,20 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
-import uk.co.whichdigital.ksv.Util.addTrimQuotesToNormalizeColumnNames
-import uk.co.whichdigital.ksv.Util.createLineSplitter
-import uk.co.whichdigital.ksv.Util.removeSpace
+import net.simonvoid.ksv4ever.Util.addTrimQuotesToNormalizeColumnNames
+import net.simonvoid.ksv4ever.Util.createLineSplitter
+import net.simonvoid.ksv4ever.Util.removeSpace
 import java.io.InputStream
 import java.nio.charset.Charset
 
 
 data class CsvSourceConfig (
-    val stream: InputStream,
-    val charset: Charset = Charsets.UTF_8,
-    private val commaChar: Char = ',',
-    private val quoteChar: Char = '"',
-    val fixLine: StringModifier = ::removeBomChars,
-    val keepCsvRecord: (CsvHeader, CsvRecord) -> Boolean = keepAll,
-    private val normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes,
+        val stream: InputStream,
+        val charset: Charset = Charsets.UTF_8,
+        private val commaChar: Char = ',',
+        private val quoteChar: Char = '"',
+        val fixLine: StringModifier = ::removeBomChars,
+        val keepCsvRecord: (CsvHeader, CsvRecord) -> Boolean = keepAll,
+        private val normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes,
 ) {
     val splitByComma: LineSplitter = createLineSplitter(commaChar, quoteChar)
     val effectiveNormalizeColumnName: StringModifier = addTrimQuotesToNormalizeColumnNames(quoteChar, normalizeColumnName)

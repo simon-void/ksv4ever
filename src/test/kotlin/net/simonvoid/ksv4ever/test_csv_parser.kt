@@ -1,4 +1,4 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll

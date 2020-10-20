@@ -1,16 +1,18 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import kotlin.reflect.KClass
+import kotlin.reflect.KClassifier
 import kotlin.reflect.full.isSuperclassOf
 
 
 fun convert(
         token: String?,
         csvRowParam: CsvRowParam,
+        normalizedColumnName: String,
 ): Any? {
     if (token.isNullOrBlank()) {
         return null
@@ -18,22 +20,26 @@ fun convert(
 
     val trimmed = token.trim()
 
-    return when (csvRowParam) {
-        is CsvRowParam.ByNoAnnotation, is CsvRowParam.ByCsvValue ->
-            when (val expectedValueClass = csvRowParam.paramType.classifier) {
-                String::class -> trimmed
-                Int::class -> trimmed.toInt()
-                Double::class -> trimmed.toDouble()
-                Boolean::class -> trimmed.isTruthy()
-                else -> throw IllegalStateException("unsupported parameter type: $expectedValueClass")
-            }
-        is CsvRowParam.ByCsvTimestamp ->
-            when (val expectedValueClass = csvRowParam.paramType.classifier) {
-                LocalDate::class -> trimmed.toLocalDate(csvRowParam)
-                LocalDateTime::class -> trimmed.toLocalDateTime(csvRowParam)
-                else -> throw IllegalStateException("unsupported parameter type: $expectedValueClass for @CsvTimestamp")
-            }
-        is CsvRowParam.ByCsvGeneric -> GenericConverterRegistry[csvRowParam.converterName].convert(trimmed)
+    try {
+        return when (csvRowParam) {
+            is CsvRowParam.ByNoAnnotation, is CsvRowParam.ByCsvValue ->
+                when (val expectedValueClass = csvRowParam.paramType.classifier) {
+                    String::class -> trimmed
+                    Int::class -> trimmed.toInt()
+                    Double::class -> trimmed.toDouble()
+                    Boolean::class -> trimmed.isTruthy()
+                    else -> throw IllegalStateException("unsupported parameter type: $expectedValueClass")
+                }
+            is CsvRowParam.ByCsvTimestamp ->
+                when (val expectedValueClass = csvRowParam.paramType.classifier) {
+                    LocalDate::class -> trimmed.toLocalDate(csvRowParam)
+                    LocalDateTime::class -> trimmed.toLocalDateTime(csvRowParam)
+                    else -> throw IllegalStateException("unsupported parameter type: $expectedValueClass for @CsvTimestamp")
+                }
+            is CsvRowParam.ByCsvGeneric -> GenericConverterRegistry[csvRowParam.converterName].convert(trimmed)
+        }
+    } catch (e: Exception) {
+        throw ConversionException(normalizedColumnName, csvRowParam.paramType.classifier, e)
     }
 }
 
@@ -85,11 +91,11 @@ inline fun <reified T : Any> registerGenericConverter(
     noinline convert: (String) -> T,
 ) {
     GenericConverterRegistry.register(
-        GenericConverter(
-            T::class,
-            name,
-            convert
-        )
+            GenericConverter(
+                    T::class,
+                    name,
+                    convert
+            )
     )
 }
 
@@ -113,4 +119,17 @@ object GenericConverterRegistry {
 
     operator fun get(name: String): GenericConverter<*> =
         converterByName[name] ?: throw IllegalArgumentException("no converter registered for name: $name")
+}
+
+class ConversionException(
+        private val normalizedColumnName: String,
+        private val targetClassifier: KClassifier?,
+        override val cause: Exception,
+): IllegalArgumentException() {
+    override val message: String?
+        get() {
+            val targetClassName = (targetClassifier as? KClass<*>)?.simpleName ?: "unknown"
+            val reason = "${cause.javaClass.simpleName}: ${cause.message}"
+            return "couldn't convert column entry [normalized name: $normalizedColumnName] into $targetClassName because of $reason"
+        }
 }

@@ -1,12 +1,12 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 
 data class CsvTable(val header: CsvHeader, val csvRecords: Sequence<ProtoCsvRecord>)
 
 class CsvHeader(
-    private val line: String,
-    private val normalizeColumnName: StringModifier,
-    splitByComma: LineSplitter,
+        private val line: String,
+        private val normalizeColumnName: StringModifier,
+        splitByComma: LineSplitter,
 ) {
     val normalizedColumnNames: List<String> = line.splitByComma().map { normalizeColumnName(it) }
     val numberOrColumns: Int = normalizedColumnNames.size
@@ -78,20 +78,20 @@ class CsvRecord private constructor(
 
     companion object {
         fun constructFrom(
-            line: String,
-            expectedNumberOfElements: Int,
-            splitByComma: LineSplitter,
+                line: String,
+                expectedNumberOfElements: Int,
+                splitByComma: LineSplitter,
         ): ProtoCsvRecord {
             val elements: List<String> = line.splitByComma()
             val actualSize = elements.size
             return if (expectedNumberOfElements != actualSize) {
                 ProtoCsvRecord.Failure(
-                    line,
-                    "line doesn't contain as many arguments as expected! expected: $expectedNumberOfElements, actual: $actualSize"
+                        line,
+                        "line doesn't contain as many arguments as expected! expected: $expectedNumberOfElements, actual: $actualSize"
                 )
             } else {
                 ProtoCsvRecord.Success(
-                    CsvRecord(elements)
+                        CsvRecord(elements)
                 )
             }
         }

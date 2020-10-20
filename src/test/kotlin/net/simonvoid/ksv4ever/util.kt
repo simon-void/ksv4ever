@@ -1,11 +1,11 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 fun String.toCsvSourceConfig(
-    commaChar: Char = ',',
-    quoteChar: Char = '"',
-    fixLine: StringModifier = ::removeBomChars,
-    keepCsvRecord: RecordPredicate = keepAll,
-    normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes
+        commaChar: Char = ',',
+        quoteChar: Char = '"',
+        fixLine: StringModifier = ::removeBomChars,
+        keepCsvRecord: RecordPredicate = keepAll,
+        normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes
 ) = CsvSourceConfig(
     stream = this.byteInputStream(),
     charset = Charsets.UTF_8,

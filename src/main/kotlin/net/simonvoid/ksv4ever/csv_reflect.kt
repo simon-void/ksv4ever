@@ -1,4 +1,4 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,15 +15,15 @@ annotation class CsvRow
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class CsvValue(
-    val name: String = CSV_DEFAULT_NAME,
+        val name: String = CSV_DEFAULT_NAME,
 )
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class CsvTimestamp(
-    val name: String = CSV_DEFAULT_NAME,
-    /**format is either a single timestamp pattern (e.g. "yyyy/MM/dd" ) or multiple separated by '|' (e.g. "yyyy/MM/dd|dd-MM-yyyy" )*/
+        val name: String = CSV_DEFAULT_NAME,
+        /**format is either a single timestamp pattern (e.g. "yyyy/MM/dd" ) or multiple separated by '|' (e.g. "yyyy/MM/dd|dd-MM-yyyy" )*/
     val format: String,
 )
 
@@ -31,8 +31,8 @@ annotation class CsvTimestamp(
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class CsvGeneric(
-    val name: String = CSV_DEFAULT_NAME,
-    val converterName: String,
+        val name: String = CSV_DEFAULT_NAME,
+        val converterName: String,
 )
 
 sealed class CsvRowParam(
@@ -57,10 +57,10 @@ sealed class CsvRowParam(
     )
 
     class ByCsvValue(
-        rowClassName: String,
-        param: KParameter,
-        csvValue: CsvValue,
-        normalizeName: String.() -> String,
+            rowClassName: String,
+            param: KParameter,
+            csvValue: CsvValue,
+            normalizeName: String.() -> String,
     ) : CsvRowParam(
         rowClassName,
         param,
@@ -68,10 +68,10 @@ sealed class CsvRowParam(
     )
 
     class ByCsvTimestamp(
-        rowClassName: String,
-        param: KParameter,
-        csvTimestamp: CsvTimestamp,
-        normalizeName: String.() -> String,
+            rowClassName: String,
+            param: KParameter,
+            csvTimestamp: CsvTimestamp,
+            normalizeName: String.() -> String,
     ) : CsvRowParam(
         rowClassName,
         param,
@@ -95,10 +95,10 @@ sealed class CsvRowParam(
     }
 
     class ByCsvGeneric(
-        rowClassName: String,
-        param: KParameter,
-        csvGeneric: CsvGeneric,
-        normalizeName: String.() -> String,
+            rowClassName: String,
+            param: KParameter,
+            csvGeneric: CsvGeneric,
+            normalizeName: String.() -> String,
     ) : CsvRowParam(
         rowClassName,
         param,
@@ -161,27 +161,27 @@ class ReflectiveItemFactory<Row : Any>(
             val csvGeneric: CsvGeneric? = param.getSingleAnnotation<CsvGeneric>()
             return@map when {
                 csvValue != null -> CsvRowParam.ByCsvValue(
-                    rowClassName,
-                    param,
-                    csvValue,
-                    normalizeParamName
+                        rowClassName,
+                        param,
+                        csvValue,
+                        normalizeParamName
                 )
                 csvTimestamp != null -> CsvRowParam.ByCsvTimestamp(
-                    rowClassName,
-                    param,
-                    csvTimestamp,
-                    normalizeParamName
+                        rowClassName,
+                        param,
+                        csvTimestamp,
+                        normalizeParamName
                 )
                 csvGeneric != null -> CsvRowParam.ByCsvGeneric(
-                    rowClassName,
-                    param,
-                    csvGeneric,
-                    normalizeParamName
+                        rowClassName,
+                        param,
+                        csvGeneric,
+                        normalizeParamName
                 )
                 else -> CsvRowParam.ByNoAnnotation(
-                    rowClassName,
-                    param,
-                    normalizeParamName
+                        rowClassName,
+                        param,
+                        normalizeParamName
                 )
             }
         }.groupBy { it.normalizedColumnName }
@@ -285,7 +285,7 @@ class ReflectiveItemFactory<Row : Any>(
             normalizedNamesWithToken.entries.mapNotNull { (normalizedName, token) ->
                 val csvRowParam: CsvRowParam = csvRowParamByNormalizedColumnName[normalizedName]
                     ?: throw IllegalStateException("didn't find a CsvRowParam for normalizedName: $normalizedName")
-                val value: Any? = convert(token, csvRowParam)
+                val value: Any? = convert(token, csvRowParam, normalizedName )
 
                 if (value == null) {
                     if (csvRowParam.isParamOptional) {
@@ -314,9 +314,9 @@ class ReflectiveItemFactory<Row : Any>(
 }
 
 fun <ItemType : Any> record2Item(
-    header: CsvHeader,
-    record: CsvRecord,
-    itemFactory: ReflectiveItemFactory<ItemType>,
+        header: CsvHeader,
+        record: CsvRecord,
+        itemFactory: ReflectiveItemFactory<ItemType>,
 ): Record2ItemResult<ItemType> {
     val providedNormalizedColumnNames = header.normalizedColumnNames
     val unusedNormalizedColumnNames: Set<String> = itemFactory.getSuperfluousNormalizedColumnNames(header)
@@ -331,9 +331,9 @@ fun <ItemType : Any> record2Item(
 
     return try {
         Record2ItemResult.Success(
-            itemFactory.buildItem(
-                actualParamNamesWithValue
-            )
+                itemFactory.buildItem(
+                        actualParamNamesWithValue
+                )
         )
     } catch (e: Exception) {
         Record2ItemResult.ConversionException(e)

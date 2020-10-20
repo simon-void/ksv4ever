@@ -1,4 +1,4 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
 
 // junit had problems with importing top-level functions (not in IntelliJ but in Gradle)
@@ -48,8 +48,8 @@ object Util {
     }
 
     fun addTrimQuotesToNormalizeColumnNames(
-        quoteChar: Char,
-        originalNormalizeColumnNames: StringModifier,
+            quoteChar: Char,
+            originalNormalizeColumnNames: StringModifier,
     ): StringModifier = {
         originalNormalizeColumnNames(it.trimThenTrimQuotesThenTrim(quoteChar))
     }

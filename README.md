@@ -1,9 +1,9 @@
-# KSV - robust mapping of comma separated values to user-defined data classes for Kotlin on the JVM
+## KSV4EVER - robust mapping of comma separated values (csv-files) to user-defined data classes for Kotlin on the JVM
 
-The robustness stems from columns being identified by (normalized) column name instead of the column index,
+The robustness stems from csv columns being identified by (normalized) column name instead of the column index,
 which makes this solution work seamlessly in situations in which columns have been swapped or new columns have been inserted.
 The names of column might even have changed slightly. (The default name normalization removes lower/uppercase differences as well as spaces.)
-This property is very useful if the source of the csv-file(s) is not within your organization and you can't enforce a certain format 
+This property is very useful if the source of the csv-file(s) is not within your organization, and you can't enforce a certain format 
 (, e.g. if you regularly import csv-files from government sites). 
 
 You only have to annotate a data class with `@CsvRow` and it’s properties with either 
@@ -52,14 +52,14 @@ via a source dependency!
 First add this git-repository to your projects **settings.gradle.kts** file:
 ```kotlin
 sourceControl {
-    gitRepository(java.net.URI.create("https://github.com/whichdigital/ksv.git")) {
-        producesModule("uk.co.whichdigital.ksv:ksv")
+    gitRepository(java.net.URI.create("https://github.com/simon-void/ksv4ever")) {
+        producesModule("net.simonvoid.ksv4ever:ksv4ever")
     }
 }
 ```
 then add this dependency (in its latest git-tagged version) to your **build.gradle.kts** file:
 ```kotlin
-implementation("uk.co.whichdigital.ksv:ksv:1.0.0")
+implementation("net.simonvoid.ksv4ever:ksv4ever:1.0.2")
 ``` 
 Done.
 
@@ -187,3 +187,10 @@ val dataRows: List<DataRow> = csv2List(CsvSourceConfig(csvStream)).filter {row -
 But assuming a case where the csv source is truely big (like gigabytes big),
 and a lot of instances get discarded because of this filter,
 it can be a reasonable idea to filter those rows out before computation time and memory is wasted on them.
+
+#### Origin
+
+This library came into being as a fork of the [ksv library](https://github.com/whichdigital/ksv) 
+which I created during my time working for [Which?](https://www.which.co.uk/).
+
+I decided to fork it, so that I can continue to take care of it.

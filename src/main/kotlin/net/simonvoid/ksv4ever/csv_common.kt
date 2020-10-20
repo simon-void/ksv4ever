@@ -1,14 +1,14 @@
-package uk.co.whichdigital.ksv
+package net.simonvoid.ksv4ever
 
-import uk.co.whichdigital.ksv.Util.toItemList
+import net.simonvoid.ksv4ever.Util.toItemList
 
 
 inline fun <reified T : Any> csv2List(
-    sourceConfig: CsvSourceConfig,
-    noinline logInvalidLine: ((line: String, msg: String)->Unit)? = null,
-    noinline logRejectedRecord: ((record: String)->Unit)? = null,
-    noinline logConversionError: ((record: String, msg: String)->Unit)? = null,
-    noinline logSummary: ((
+        sourceConfig: CsvSourceConfig,
+        noinline logInvalidLine: ((line: String, msg: String)->Unit)? = null,
+        noinline logRejectedRecord: ((record: String)->Unit)? = null,
+        noinline logConversionError: ((record: String, msg: String)->Unit)? = null,
+        noinline logSummary: ((
         invalidLineCount: Int,
         rejectedRecordCount: Int,
         conversionErrorCount: Int,
@@ -49,8 +49,8 @@ sealed class ParsedCsvLine<out T:Any> {
 }
 
 inline fun <reified T : Any> csv2whatever(
-    sourceConfig: CsvSourceConfig,
-    consumeCsvTable: (CsvTable) -> T,
+        sourceConfig: CsvSourceConfig,
+        consumeCsvTable: (CsvTable) -> T,
 ): T {
     sourceConfig.bufferedReader().useLines { lines: Sequence<String> ->
         val lineIterator = lines.iterator()
