@@ -1,10 +1,9 @@
 package net.simonvoid.ksv4ever
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
+import org.testng.Assert.assertEquals
+import org.testng.annotations.BeforeTest
+import org.testng.annotations.DataProvider
+import org.testng.annotations.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -47,7 +46,7 @@ enum class FuzyBoolean {
 
 class TestParseCsv {
 
-    @BeforeAll
+    @BeforeTest
     fun setup() {
         // for test case `test csv generic parsing`
         registerGenericConverter("fuzyBooleanConverter") { token: String ->
@@ -59,277 +58,245 @@ class TestParseCsv {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("csvParsingTestDataProvider")
+    @Test(dataProvider = "csvParsingTestDataProvider")
     fun `test basic csv parsing`(msg: String, csv: String, expectedRows: List<Row1>) {
         val actualRows: List<Row1> = csv2List(csv.toCsvSourceConfig())
-        assertEquals(expectedRows, actualRows, msg)
+        assertEquals(actualRows, expectedRows, msg)
     }
 
-    @ParameterizedTest
-    @MethodSource("csvParsingWithDefaultParamsTestDataProvider")
+    @DataProvider
+    fun csvParsingTestDataProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            "basic functionality, expected: get two instances",
+            """
+                |town,nr
+                |Copenhagen,53
+                |Malmo, 64
+                """.trimMargin(),
+            listOf(
+                Row1("Copenhagen", 53),
+                Row1("Malmo", 64)
+            )
+        ),
+        arrayOf(
+            "missing nullable value, expected: initialize value with null",
+            """
+                |town,nr
+                |Malmo,
+                """.trimMargin(),
+            listOf(
+                Row1("Malmo", null)
+            )
+        )
+    )
+
+    @Test(dataProvider = "csvParsingWithDefaultParamsTestDataProvider")
     fun `test csv parsing with parameter default values`(msg: String, csv: String, expectedRows: List<Row2>) {
         val actualRows: List<Row2> = csv2List(csv.toCsvSourceConfig())
 
-        assertEquals(expectedRows, actualRows, msg)
+        assertEquals(actualRows, expectedRows, msg)
     }
 
-    @ParameterizedTest
-    @MethodSource("csvTimestampParsingTestDataProvider")
+    @DataProvider
+    fun csvParsingWithDefaultParamsTestDataProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            "missing non-nullable value with default value, expected: initialize value with default value",
+            """
+                |town,nr
+                |, 64
+                """.trimMargin(),
+            listOf(
+                Row2(
+                    DEFAULT_TOWN,
+                    64
+                )
+            )
+        ),
+        arrayOf(
+            "missing nullable value with default value, expected: initialize value with default value",
+            """
+                |town,nr
+                |Cairo,
+                """.trimMargin(),
+            listOf(
+                Row2(
+                    "Cairo",
+                    DEFAULT_NR
+                )
+            )
+        ),
+    )
+
+    @Test(dataProvider = "csvTimestampParsingTestDataProvider")
     fun `test csv timestamp parsing`(msg: String, csv: String, expectedRows: List<Row3>) {
         val actualRows: List<Row3> = csv2List(csv.toCsvSourceConfig())
 
-        assertEquals(expectedRows, actualRows, msg)
+        assertEquals(actualRows, expectedRows, msg)
     }
 
-    @ParameterizedTest
-    @MethodSource("csvTimestampParsingInMultipleFormatsTestDataProvider")
+    @DataProvider
+    fun csvTimestampParsingTestDataProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            "converting timestamp values, expected: initialize value with timestamp value",
+            """
+                |date,date_time
+                |26/04/2018, 2019-03-27 10:15:30
+                |2/4/2018, 2019-3-7 8:15:30
+                """.trimMargin(),
+            listOf(
+                Row3(
+                    LocalDate.of(2018, 4, 26),
+                    LocalDateTime.of(2019, 3, 27, 10, 15, 30)
+                ),
+                Row3(
+                    LocalDate.of(2018, 4, 2),
+                    LocalDateTime.of(2019, 3, 7, 8, 15, 30)
+                )
+            )
+        ),
+        arrayOf(
+            "converting nullable timestamp values, expected: missing value becomes null",
+            """
+                |date,date_time
+                |11/12/2015,
+                """.trimMargin(),
+            listOf(
+                Row3(
+                    LocalDate.of(2015, 12, 11),
+                    null
+                )
+            )
+        )
+    )
+
+    @Test(dataProvider = "csvTimestampParsingInMultipleFormatsTestDataProvider")
     fun `test csv timestamp parsing with multiple formats`(msg: String, csv: String, expectedRows: List<Row4>) {
         val actualRows: List<Row4> = csv2List(csv.toCsvSourceConfig())
 
-        assertEquals(expectedRows, actualRows, msg)
+        assertEquals(actualRows, expectedRows, msg)
     }
 
-    @ParameterizedTest
-    @MethodSource("csvGenericTestDataProvider")
+    @DataProvider
+    fun csvTimestampParsingInMultipleFormatsTestDataProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            "converting timestamp values, expected: initialize value with timestamp value",
+            """
+                |date
+                |26/04/2018
+                |2013-10-12
+                """.trimMargin(),
+            listOf(
+                Row4(LocalDate.of(2018, 4, 26)),
+                Row4(LocalDate.of(2013, 10, 12))
+            )
+        )
+    )
+
+    @Test(dataProvider = "csvGenericTestDataProvider")
     fun `test csv generic parsing`(msg: String, csv: String, expectedRows: List<Row5>) {
         val actualRows: List<Row5> = csv2List(csv.toCsvSourceConfig())
 
-        assertEquals(expectedRows, actualRows, msg)
+        assertEquals(actualRows, expectedRows, msg)
     }
 
-    companion object {
-        @JvmStatic
-        private fun csvParsingTestDataProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    "basic functionality, expected: get two instances",
-                    """
-                            |town,nr
-                            |Copenhagen,53
-                            |Malmo, 64
-                            """.trimMargin(),
-                    listOf(
-                        Row1("Copenhagen", 53),
-                        Row1("Malmo", 64)
-                    )
+    @DataProvider
+    fun csvGenericTestDataProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            "converting generic values, expected: initialize value custom enum, use default FuzyBoolean.UNKNOWN if invalid or null token",
+            """
+                |truthiness1,truthiness2
+                |YES, yes
+                |NO, no
+                |MAYBE, maybe
+                |UNKNOWN, unknown
+                |truly new, even more different
+                |,
+                """.trimMargin(),
+            listOf(
+                Row5(
+                    FuzyBoolean.YES,
+                    FuzyBoolean.YES
                 ),
-                Arguments.of(
-                    "missing nullable value, expected: initialize value with null",
-                    """
-                            |town,nr
-                            |Malmo,
-                            """.trimMargin(),
-                    listOf(
-                        Row1("Malmo", null)
-                    )
-                )
-            )
-        }
-
-        @JvmStatic
-        private fun csvParsingWithDefaultParamsTestDataProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    "missing non-nullable value with default value, expected: initialize value with default value",
-                    """
-                            |town,nr
-                            |, 64
-                            """.trimMargin(),
-                    listOf(
-                        Row2(
-                            DEFAULT_TOWN,
-                            64
-                        )
-                    )
+                Row5(
+                    FuzyBoolean.NO,
+                    FuzyBoolean.NO
                 ),
-                Arguments.of(
-                    "missing nullable value with default value, expected: initialize value with default value",
-                    """
-                            |town,nr
-                            |Cairo,
-                            """.trimMargin(),
-                    listOf(
-                        Row2(
-                            "Cairo",
-                            DEFAULT_NR
-                        )
-                    )
-                )
-            )
-        }
-
-        @JvmStatic
-        private fun csvTimestampParsingTestDataProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    "converting timestamp values, expected: initialize value with timestamp value",
-                    """
-                    |date,date_time
-                    |26/04/2018, 2019-03-27 10:15:30
-                    |2/4/2018, 2019-3-7 8:15:30
-                    """.trimMargin(),
-                    listOf(
-                        Row3(
-                            LocalDate.of(2018, 4, 26),
-                            LocalDateTime.of(2019, 3, 27, 10, 15, 30)
-                        ),
-                        Row3(
-                            LocalDate.of(2018, 4, 2),
-                            LocalDateTime.of(2019, 3, 7, 8, 15, 30)
-                        )
-                    )
+                Row5(
+                    FuzyBoolean.MAYBE,
+                    FuzyBoolean.MAYBE
                 ),
-                Arguments.of(
-                    "converting nullable timestamp values, expected: missing value becomes null",
-                    """
-                    |date,date_time
-                    |11/12/2015,
-                    """.trimMargin(),
-                    listOf(
-                        Row3(
-                            LocalDate.of(2015, 12, 11),
-                            null
-                        )
-                    )
-                )
-            )
-        }
-
-        @JvmStatic
-        private fun csvTimestampParsingInMultipleFormatsTestDataProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    "converting timestamp values, expected: initialize value with timestamp value",
-                    """
-                    |date
-                    |26/04/2018
-                    |2013-10-12
-                    """.trimMargin(),
-                    listOf(
-                        Row4(LocalDate.of(2018, 4, 26)),
-                        Row4(LocalDate.of(2013, 10, 12))
-                    )
-                )
-            )
-        }
-
-        @JvmStatic
-        private fun csvGenericTestDataProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    "converting generic values, expected: initialize value custom enum, use default FuzyBoolean.UNKNOWN if invalid or null token",
-                    """
-                    |truthiness1,truthiness2
-                    |YES, yes
-                    |NO, no
-                    |MAYBE, maybe
-                    |UNKNOWN, unknown
-                    |truly new, even more different
-                    |,
-                    """.trimMargin(),
-                    listOf(
-                        Row5(
-                            FuzyBoolean.YES,
-                            FuzyBoolean.YES
-                        ),
-                        Row5(
-                            FuzyBoolean.NO,
-                            FuzyBoolean.NO
-                        ),
-                        Row5(
-                            FuzyBoolean.MAYBE,
-                            FuzyBoolean.MAYBE
-                        ),
-                        Row5(
-                            FuzyBoolean.UNKNOWN,
-                            FuzyBoolean.UNKNOWN
-                        ),
-                        Row5(
-                            FuzyBoolean.UNKNOWN,
-                            FuzyBoolean.UNKNOWN
-                        ),
-                        Row5(
-                            FuzyBoolean.UNKNOWN,
-                            null
-                        )
-                    )
-                )
-            )
-        }
-
-        //        @JvmStatic
-//        private fun csvFilteringProviderMissingColumnName(): List<Arguments?> {
-//            Arguments.of(
-//                "Filtering will throw an Exception as a column name is missing",
-//                """
-//                            |town,number
-//                            |Copenhagen,1
-//                            |Copenhagen, 5
-//                            """.trimMargin(),
-//                listOf(
-//                    Row1("Copenhagen", 1),
-//                    Row1("Copenhagen", 5)
-//                )
-//            )
-//        }
-        @JvmStatic
-        private fun csvFilteringTestProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    "Filtering will throw an Exception as a column name is missing",
-                    """
-                            |town,nr
-                            |Copenhagen,1
-                            |Copenhagen, 5
-                            """.trimMargin(),
-                    listOf(
-                        Row1("Copenhagen", 1),
-                        Row1("Copenhagen", 5)
-                    )
+                Row5(
+                    FuzyBoolean.UNKNOWN,
+                    FuzyBoolean.UNKNOWN
                 ),
-                Arguments.of(
-                    "Filter will discard nothing, expected: get two instances",
-                    """
-                            |town,nr
-                            |Copenhagen,1
-                            |Copenhagen, 5
-                            """.trimMargin(),
-                    listOf(
-                        Row1("Copenhagen", 1),
-                        Row1("Copenhagen", 5)
-                    )
-                ), Arguments.of(
-                    "Filter will discard Malmo, expected: get one instance",
-                    """
-                            |town,nr
-                            |Copenhagen,1
-                            |Malmo, 1
-                            """.trimMargin(),
-                    listOf(
-                        Row1("Copenhagen", 1)
-                    )
-                ), Arguments.of(
-                    "Filter will discard nr 2, expected: get one instance",
-                    """
-                            |town,nr
-                            |Copenhagen,1
-                            |Copenhagen, 2
-                            """.trimMargin(),
-                    listOf(
-                        Row1("Copenhagen", 1)
-                    )
+                Row5(
+                    FuzyBoolean.UNKNOWN,
+                    FuzyBoolean.UNKNOWN
                 ),
-                Arguments.of(
-                    "filter will discard both Malmo and nr 2, expected: get 0 instances",
-                    """
-                            |town,nr
-                            |Copenhagen,2
-                            |Malmo, 1
-                            """.trimMargin(),
-                    emptyList<Row1>()
+                Row5(
+                    FuzyBoolean.UNKNOWN,
+                    null
                 )
             )
-        }
-    }
+        )
+    )
+
+    @DataProvider
+    fun csvFilteringTestProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            "Filtering will throw an Exception as a column name is missing",
+            """
+                |town,nr
+                |Copenhagen,1
+                |Copenhagen, 5
+                """.trimMargin(),
+            listOf(
+                Row1("Copenhagen", 1),
+                Row1("Copenhagen", 5)
+            )
+        ),
+        arrayOf(
+            "Filter will discard nothing, expected: get two instances",
+            """
+                |town,nr
+                |Copenhagen,1
+                |Copenhagen, 5
+                """.trimMargin(),
+            listOf(
+                Row1("Copenhagen", 1),
+                Row1("Copenhagen", 5)
+            )
+        ),
+        arrayOf(
+            "Filter will discard Malmo, expected: get one instance",
+            """
+                |town,nr
+                |Copenhagen,1
+                |Malmo, 1
+                """.trimMargin(),
+            listOf(
+                Row1("Copenhagen", 1)
+            )
+        ),
+        arrayOf(
+            "Filter will discard nr 2, expected: get one instance",
+            """
+                |town,nr
+                |Copenhagen,1
+                |Copenhagen, 2
+                """.trimMargin(),
+            listOf(
+                Row1("Copenhagen", 1)
+            )
+        ),
+        arrayOf(
+            "filter will discard both Malmo and nr 2, expected: get 0 instances",
+            """
+                |town,nr
+                |Copenhagen,2
+                |Malmo, 1
+                """.trimMargin(),
+            emptyList<Row1>()
+        )
+    )
 }

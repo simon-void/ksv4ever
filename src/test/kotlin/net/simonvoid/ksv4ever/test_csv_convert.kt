@@ -2,13 +2,9 @@ package net.simonvoid.ksv4ever
 
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
+import org.testng.Assert.*
+import org.testng.annotations.DataProvider
+import org.testng.annotations.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.reflect.KClass
@@ -16,110 +12,101 @@ import kotlin.reflect.KType
 
 
 class TestConvertToken {
-
     class TestNoAnnotation {
-        @ParameterizedTest
-        @MethodSource("no csv annotation to basic type TestDataProvider")
+        @Test(dataProvider = "no csv annotation to basic type TestDataProvider")
         fun `test no csv annotation to basic type conversion`(
-                rowParam: CsvRowParam.ByNoAnnotation,
-                token: String?,
-                expectedValue: Any?
+            rowParam: CsvRowParam.ByNoAnnotation,
+            token: String?,
+            expectedValue: Any?
         ) {
             val actualValue: Any? = convert(
-                    token,
-                    rowParam,
-                    "name of the csv column the toke was found in",
+                token,
+                rowParam,
+                "name of the csv column the toke was found in",
             )
 
-            assertEquals(expectedValue, actualValue, "for token \"$token\"")
+            assertEquals(actualValue, expectedValue, "for token \"$token\"")
         }
 
-
-        companion object {
-            @JvmStatic
-            private fun `no csv annotation to basic type TestDataProvider`(): List<Arguments?> {
-                fun mockNoCsvAnnoForBasicTypes(clazz: KClass<*>) = mockk<CsvRowParam.ByNoAnnotation>().also {
-                    every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns clazz }
-                }
-                return listOf(
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(String::class), " some value ", "some value"),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Int::class), "123", 123),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Double::class), " 34.5 ", 34.5),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "true", true),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "yes", true),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "y", true),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "TRUE", true),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "YES", true),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "Y", true),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), " 1 ", true),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "false", false),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "no", false),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "n", false),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "0", false),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "MAYBE", false),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), "not yes", false),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(String::class), "  ", null),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Int::class), "     ", null),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Double::class), "  ", null),
-                    Arguments.of(mockNoCsvAnnoForBasicTypes(Boolean::class), " ", null)
-                )
+        @DataProvider
+        fun `no csv annotation to basic type TestDataProvider`(): Array<Array<Any?>> {
+            fun mockNoCsvAnnoForBasicTypes(clazz: KClass<*>) = mockk<CsvRowParam.ByNoAnnotation>().also {
+                every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns clazz }
             }
+
+            return arrayOf(
+                arrayOf(mockNoCsvAnnoForBasicTypes(String::class), " some value ", "some value"),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Int::class), "123", 123),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Double::class), " 34.5 ", 34.5),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "true", true),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "yes", true),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "y", true),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "TRUE", true),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "YES", true),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "Y", true),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), " 1 ", true),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "false", false),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "no", false),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "n", false),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "0", false),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "MAYBE", false),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), "not yes", false),
+                arrayOf(mockNoCsvAnnoForBasicTypes(String::class), "  ", null),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Int::class), "     ", null),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Double::class), "  ", null),
+                arrayOf(mockNoCsvAnnoForBasicTypes(Boolean::class), " ", null),
+            )
         }
     }
 
     class TestCsvValue {
-        @ParameterizedTest
-        @MethodSource("csvValue to basic type TestDataProvider")
+        @Test(dataProvider = "csvValue to basic type TestDataProvider")
         fun `test csvValue to basic type conversion`(
-                rowParam: CsvRowParam.ByCsvValue,
-                token: String?,
-                expectedValue: Any?
+            rowParam: CsvRowParam.ByCsvValue,
+            token: String?,
+            expectedValue: Any?
         ) {
             val actualValue: Any? = convert(
-                    token,
-                    rowParam,
-                    "name of the csv column the toke was found in",
+                token,
+                rowParam,
+                "name of the csv column the toke was found in",
             )
 
-            assertEquals(expectedValue, actualValue, "for token \"$token\"")
+            assertEquals(actualValue, expectedValue, "for token \"$token\"")
         }
 
-
-        companion object {
-            @JvmStatic
-            private fun `csvValue to basic type TestDataProvider`(): List<Arguments?> {
-                fun mockCsvValueForBasicTypes(clazz: KClass<*>) = mockk<CsvRowParam.ByCsvValue>().also {
-                    every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns clazz }
-                }
-                return listOf(
-                    Arguments.of(mockCsvValueForBasicTypes(String::class), " some value ", "some value"),
-                    Arguments.of(mockCsvValueForBasicTypes(Int::class), "123", 123),
-                    Arguments.of(mockCsvValueForBasicTypes(Double::class), " 34.5 ", 34.5),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "true", true),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "yes", true),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "y", true),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "TRUE", true),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "YES", true),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "Y", true),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), " 1 ", true),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "false", false),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "no", false),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "n", false),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "0", false),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "MAYBE", false),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), "not yes", false),
-                    Arguments.of(mockCsvValueForBasicTypes(String::class), "  ", null),
-                    Arguments.of(mockCsvValueForBasicTypes(Int::class), "     ", null),
-                    Arguments.of(mockCsvValueForBasicTypes(Double::class), "  ", null),
-                    Arguments.of(mockCsvValueForBasicTypes(Boolean::class), " ", null)
-                )
+        @DataProvider
+        fun `csvValue to basic type TestDataProvider`(): Array<Array<Any?>> {
+            fun mockCsvValueForBasicTypes(clazz: KClass<*>) = mockk<CsvRowParam.ByCsvValue>().also {
+                every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns clazz }
             }
+            return arrayOf(
+                arrayOf(mockCsvValueForBasicTypes(String::class), " some value ", "some value"),
+                arrayOf(mockCsvValueForBasicTypes(Int::class), "123", 123),
+                arrayOf(mockCsvValueForBasicTypes(Double::class), " 34.5 ", 34.5),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "true", true),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "yes", true),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "y", true),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "TRUE", true),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "YES", true),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "Y", true),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), " 1 ", true),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "false", false),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "no", false),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "n", false),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "0", false),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "MAYBE", false),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), "not yes", false),
+                arrayOf(mockCsvValueForBasicTypes(String::class), "  ", null),
+                arrayOf(mockCsvValueForBasicTypes(Int::class), "     ", null),
+                arrayOf(mockCsvValueForBasicTypes(Double::class), "  ", null),
+                arrayOf(mockCsvValueForBasicTypes(Boolean::class), " ", null)
+            )
         }
     }
 
     class TestCsvTimestampConversion {
-        @ParameterizedTest
-        @MethodSource("csvTimestamp to LocalDateTime TestDataProvider")
+        @Test(dataProvider = "csvTimestamp to LocalDateTime TestDataProvider")
         fun `test CsvTimestamp to LocalDateTime conversion`(
                 rowParam: CsvRowParam.ByCsvTimestamp,
                 token: String?,
@@ -131,11 +118,10 @@ class TestConvertToken {
                     "name of the csv column the toke was found in",
             ) as LocalDateTime?
 
-            assertEquals(expectedDateTime, actualDateTime, "token: \"$token\", expected format: \"${rowParam.format}\"")
+            assertEquals(actualDateTime, expectedDateTime, "token: \"$token\", expected format: \"${rowParam.format}\"")
         }
 
-        @ParameterizedTest
-        @MethodSource("csvTimestamp to LocalDate TestDataProvider")
+        @Test(dataProvider = "csvTimestamp to LocalDate TestDataProvider")
         fun `test CsvTimestamp to LocalDate conversion`(
                 rowParam: CsvRowParam.ByCsvTimestamp,
                 token: String?,
@@ -143,66 +129,62 @@ class TestConvertToken {
         ) {
             val actualDate = convert(token, rowParam, "name of the csv column the toke was found in") as LocalDate?
 
-            assertEquals(expectedDate, actualDate, "token: \"$token\", expected format: \"${rowParam.format}\"")
+            assertEquals(actualDate, expectedDate, "token: \"$token\", expected format: \"${rowParam.format}\"")
         }
 
-
-        companion object {
-            @JvmStatic
-            private fun `csvTimestamp to LocalDateTime TestDataProvider`(): List<Arguments?> {
-                fun mockCsvTimestampForLocalDateTime(format: String) = mockk<CsvRowParam.ByCsvTimestamp>().also {
-                    every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns LocalDateTime::class }
-                    every { it.format } returns format
-                }
-                return listOf(
-                    Arguments.of(
-                        mockCsvTimestampForLocalDateTime("yyyy/MM/dd - HH:mm|dd/MM/yyyy - HH:mm"),
-                        "2018/09/21 - 00:00",
-                        LocalDateTime.of(2018, 9, 21, 0, 0)
-                    ),
-                    Arguments.of(
-                        mockCsvTimestampForLocalDateTime("yyyy/MM/dd - HH:mm"),
-                        "2018/09/21 - 20:35",
-                        LocalDateTime.of(2018, 9, 21, 20, 35)
-                    ),
-                    Arguments.of(
-                        mockCsvTimestampForLocalDateTime("dd/MM/yyyy - HH:mm"),
-                        "21/09/2018 - 11:35",
-                        LocalDateTime.of(2018, 9, 21, 11, 35)
-                    ),
-                    Arguments.of(
-                        mockCsvTimestampForLocalDateTime("yyyy/MM/dd - HH:mm"),
-                        "",
-                        null
-                    )
-                )
+        @DataProvider
+        fun `csvTimestamp to LocalDateTime TestDataProvider`(): Array<Array<Any?>> {
+            fun mockCsvTimestampForLocalDateTime(format: String) = mockk<CsvRowParam.ByCsvTimestamp>().also {
+                every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns LocalDateTime::class }
+                every { it.format } returns format
             }
-
-            @JvmStatic
-            private fun `csvTimestamp to LocalDate TestDataProvider`(): List<Arguments?> {
-                fun mockCsvTimestampForLocalDate(format: String) = mockk<CsvRowParam.ByCsvTimestamp>().also {
-                    every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns LocalDate::class }
-                    every { it.format } returns format
-                }
-                return listOf(
-                    Arguments.of(
-                        mockCsvTimestampForLocalDate("yyyy/MM/dd"),
-                        "2018/09/21",
-                        LocalDate.of(2018, 9, 21)
-                    ),
-                    Arguments.of(
-                        mockCsvTimestampForLocalDate("yyyy/MM/dd"),
-                        "",
-                        null
-                    ),
-                    Arguments.of(
-                        mockCsvTimestampForLocalDate("dd/MM/yyyy - HH:mm"),
-                        "21/09/2018 - 00:00",
-                        LocalDate.of(2018, 9, 21)
-                    )
+            return arrayOf(
+                arrayOf(
+                    mockCsvTimestampForLocalDateTime("yyyy/MM/dd - HH:mm|dd/MM/yyyy - HH:mm"),
+                    "2018/09/21 - 00:00",
+                    LocalDateTime.of(2018, 9, 21, 0, 0)
+                ),
+                arrayOf(
+                    mockCsvTimestampForLocalDateTime("yyyy/MM/dd - HH:mm"),
+                    "2018/09/21 - 20:35",
+                    LocalDateTime.of(2018, 9, 21, 20, 35)
+                ),
+                arrayOf(
+                    mockCsvTimestampForLocalDateTime("dd/MM/yyyy - HH:mm"),
+                    "21/09/2018 - 11:35",
+                    LocalDateTime.of(2018, 9, 21, 11, 35)
+                ),
+                arrayOf(
+                    mockCsvTimestampForLocalDateTime("yyyy/MM/dd - HH:mm"),
+                    "",
+                    null
                 )
-            }
+            )
+        }
 
+        @DataProvider
+        fun `csvTimestamp to LocalDate TestDataProvider`(): Array<Array<Any?>> {
+            fun mockCsvTimestampForLocalDate(format: String) = mockk<CsvRowParam.ByCsvTimestamp>().also {
+                every { it.paramType } returns mockk<KType>().also { every { it.classifier } returns LocalDate::class }
+                every { it.format } returns format
+            }
+            return arrayOf(
+                arrayOf(
+                    mockCsvTimestampForLocalDate("yyyy/MM/dd"),
+                    "2018/09/21",
+                    LocalDate.of(2018, 9, 21)
+                ),
+                arrayOf(
+                    mockCsvTimestampForLocalDate("yyyy/MM/dd"),
+                    "",
+                    null
+                ),
+                arrayOf(
+                    mockCsvTimestampForLocalDate("dd/MM/yyyy - HH:mm"),
+                    "21/09/2018 - 00:00",
+                    LocalDate.of(2018, 9, 21)
+                )
+            )
         }
     }
 

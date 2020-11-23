@@ -1,38 +1,31 @@
 package net.simonvoid.ksv4ever
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
-
 import net.simonvoid.ksv4ever.Util.createLineSplitter
+import org.testng.Assert.assertEquals
+import org.testng.annotations.DataProvider
+import org.testng.annotations.Test
 
 class TestUtil {
 
-    @ParameterizedTest
-    @MethodSource("createLineSplitterDataProvider")
+    @Test(dataProvider = "createLineSplitterDataProvider")
     fun `test createLineSplitter`(commaChar: Char, quoteChar: Char, line: String, expectedSplits: List<String>) {
         val lineSplitter = createLineSplitter(commaChar, quoteChar)
         val actualSplits = lineSplitter(line)
 
-        assertEquals(expectedSplits, actualSplits, "line being split: $line")
+        assertEquals(actualSplits, expectedSplits, "line being split: $line")
     }
 
-    companion object {
-        @JvmStatic
-        private fun createLineSplitterDataProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    ',', '"',
-                    """  House of the Rising Sun  , " test , shouldn't split " """ ,
-                    listOf("House of the Rising Sun", "test , shouldn't split")
-                ),
-                Arguments.of(
-                    ';', '\'',
-                    """  House of the Rising Sun  ; ' test ; shouldn't split ' """ ,
-                    listOf("House of the Rising Sun", "test ; shouldn't split")
-                )
-            )
-        }
-    }
+    @DataProvider
+    fun createLineSplitterDataProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            ',', '"',
+            """  House of the Rising Sun  , " test , shouldn't split " """,
+            listOf("House of the Rising Sun", "test , shouldn't split")
+        ),
+        arrayOf(
+            ';', '\'',
+            """  House of the Rising Sun  ; ' test ; shouldn't split ' """,
+            listOf("House of the Rising Sun", "test ; shouldn't split")
+        )
+    )
 }

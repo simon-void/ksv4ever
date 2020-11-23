@@ -1,7 +1,6 @@
 package net.simonvoid.ksv4ever
 
-
-// junit had problems with importing top-level functions (not in IntelliJ but in Gradle)
+// junit and testng have problems with importing top-level functions
 object Util {
     fun createLineSplitter(
         commaChar: Char = ',',
@@ -48,22 +47,22 @@ object Util {
     }
 
     fun addTrimQuotesToNormalizeColumnNames(
-            quoteChar: Char,
-            originalNormalizeColumnNames: StringModifier,
+        quoteChar: Char,
+        originalNormalizeColumnNames: StringModifier,
     ): StringModifier = {
         originalNormalizeColumnNames(it.trimThenTrimQuotesThenTrim(quoteChar))
     }
 
-    fun <T:Any> Sequence<ParsedCsvLine<T>>.toItemList(
-        logInvalidLine: ((line: String, msg: String)->Unit)? = null,
-        logRejectedRecord: ((record: String)->Unit)? = null,
-        logConversionError: ((record: String, msg: String)->Unit)? = null,
+    fun <T : Any> Sequence<ParsedCsvLine<T>>.toItemList(
+        logInvalidLine: ((line: String, msg: String) -> Unit)? = null,
+        logRejectedRecord: ((record: String) -> Unit)? = null,
+        logConversionError: ((record: String, msg: String) -> Unit)? = null,
         logSummary: ((
             invalidLineCount: Int,
             rejectedRecordCount: Int,
             conversionErrorCount: Int,
             itemsCreated: Int,
-        )->Unit)? = null,
+        ) -> Unit)? = null,
     ): List<T> {
 
         var invalidLinesCount = 0

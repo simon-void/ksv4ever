@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.20"
 }
 
 group = "net.simonvoid.ksv4ever"
-version = "1.0.2"  //-SNAPSHOT
+version = "1.0.3"  //-SNAPSHOT
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -14,12 +14,8 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    val junitVersion = "5.6.2"
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
+    testImplementation("org.testng:testng:7.3.0")
     testImplementation("io.mockk:mockk:1.9.3")
 }
 
@@ -35,6 +31,6 @@ tasks {
     }
 
     withType<Test> {
-        useJUnitPlatform()
+        useTestNG()
     }
 }

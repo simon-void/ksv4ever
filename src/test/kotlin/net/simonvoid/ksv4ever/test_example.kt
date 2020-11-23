@@ -1,8 +1,8 @@
 package net.simonvoid.ksv4ever
 
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
+import org.testng.Assert.*
+import org.testng.annotations.BeforeMethod
+import org.testng.annotations.Test
 import java.io.InputStream
 import java.time.LocalDate
 
@@ -10,13 +10,13 @@ import java.time.LocalDate
 // definition of expected content (with types) of a csv source
 @CsvRow
 data class DataRow(
-        @CsvValue(name = "RQIA") val id: String,
-        @CsvValue(name = "Number of beds") val bedCount: Int?, // types can be nullable
-        val addressLine1: String,                              // without annotation it's assumed the the column name is the the field name
-        val city: String = "London",                           // without value in the csv file the Kotlin default value is used
-        @CsvTimestamp(name = "latest check", format = "yyyy/MM/dd|dd/MM/yyyy")
+    @CsvValue(name = "RQIA") val id: String,
+    @CsvValue(name = "Number of beds") val bedCount: Int?, // types can be nullable
+    val addressLine1: String,                              // without annotation it's assumed the the column name is the the field name
+    val city: String = "London",                           // without value in the csv file the Kotlin default value is used
+    @CsvTimestamp(name = "latest check", format = "yyyy/MM/dd|dd/MM/yyyy")
     val latestCheckDate: LocalDate?,                       // multiple formats can be provided seperated by '|'
-        @CsvGeneric(name = "offers Cola, Sprite or Fanta", converterName = "beverageBoolean")
+    @CsvGeneric(name = "offers Cola, Sprite or Fanta", converterName = "beverageBoolean")
     val refreshments: Boolean?                             // a user-defined converter can be used
 )
 
@@ -26,7 +26,7 @@ class TestExample {
      * here the return type is Boolean
      * but any type - even user-defined ones - can be used!
      */
-    @BeforeAll
+    @BeforeMethod
     fun setup() {
         registerGenericConverter("beverageBoolean") {
             it.toLowerCase() == "indeed"
@@ -52,11 +52,11 @@ class TestExample {
             )
         )
 
-        assertEquals(3, dataRows.size, "number of successfully mapped rows")
-        assertEquals(setOf("Paris", "London", "Berlin"), dataRows.map { it.city }.toSet(), "city names (London is added as a default value for a missing one)")
-        assertTrue(dataRows.first { it.city=="Berlin" }.refreshments!!, "Berlin offers refreshments")
-        assertEquals(dataRows.first { it.city=="Paris" }.addressLine1, "Rue Gauge, Maison 1", "values can contain a comma")
-        assertNull(dataRows.first { it.city=="Paris" }.latestCheckDate, "Paris has no latest check date")
+        assertEquals(dataRows.size, 3, "number of successfully mapped rows")
+        assertEquals(dataRows.map { it.city }.toSet(), setOf("Paris", "London", "Berlin"), "city names (London is added as a default value for a missing one)")
+        assertTrue(dataRows.first { it.city == "Berlin" }.refreshments!!, "Berlin offers refreshments")
+        assertEquals(dataRows.first { it.city == "Paris" }.addressLine1, "Rue Gauge, Maison 1", "values can contain a comma")
+        assertNull(dataRows.first { it.city == "Paris" }.latestCheckDate, "Paris has no latest check date")
         assertEquals(dataRows.first { it.city == "Berlin" }.latestCheckDate, LocalDate.of(2012, 8, 28), "Berlin has a latest check date")
     }
 }

@@ -1,19 +1,16 @@
 package net.simonvoid.ksv4ever
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
-
+import org.testng.Assert.assertEquals
+import org.testng.annotations.BeforeTest
+import org.testng.annotations.DataProvider
+import org.testng.annotations.Test
 
 class TestHeader {
     private lateinit var defaultFixLine: StringModifier
     private lateinit var defaultColumnNormalizer: StringModifier
     private lateinit var defaultLineSplitter: LineSplitter
 
-    @BeforeAll
+    @BeforeTest
     fun setup() {
         val config = CsvSourceConfig(
             stream = "unused".byteInputStream()
@@ -23,8 +20,7 @@ class TestHeader {
         defaultFixLine = config.fixLine
     }
 
-    @ParameterizedTest
-    @MethodSource("initHeaderDataProvider")
+    @Test(dataProvider = "initHeaderDataProvider")
     fun `test initialization of header`(line: String, expectedColumnNames: List<String>) {
         val header = CsvHeader(defaultFixLine(line), defaultColumnNormalizer, defaultLineSplitter)
         val actualColumnNames = header.normalizedColumnNames
@@ -44,39 +40,35 @@ class TestHeader {
         )
     }
 
-    companion object {
-        @JvmStatic
-        private fun initHeaderDataProvider(): List<Arguments?> {
-            return listOf(
-                Arguments.of(
-                    "",
-                    listOf("")
-                ),
-                Arguments.of(
-                    "12,hi",
-                    listOf("12", "hi")
-                ),
-                Arguments.of(
-                    "12,  , hi  ",
-                    listOf("12", "", "hi")
-                ),
-                Arguments.of(
-                    """12,,hi,"hi there"""",
-                    listOf("12", "", "hi", "hithere")
-                ),
-                Arguments.of(
-                    """"12","","hi","hi, there's a dog"""",
-                    listOf("12", "", "hi", "hi,there'sadog")
-                ),
-                Arguments.of(
-                    """"12","",,hi,"hi, there's a dog"""",
-                    listOf("12", "", "", "hi", "hi,there'sadog")
-                ),
-                Arguments.of(
-                    """"Org ID","Org Name"""",
-                    listOf("orgid", "orgname")
-                )
-            )
-        }
-    }
+    @DataProvider
+    fun initHeaderDataProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            "",
+            listOf("")
+        ),
+        arrayOf(
+            "12,hi",
+            listOf("12", "hi")
+        ),
+        arrayOf(
+            "12,  , hi  ",
+            listOf("12", "", "hi")
+        ),
+        arrayOf(
+            """12,,hi,"hi there"""",
+            listOf("12", "", "hi", "hithere")
+        ),
+        arrayOf(
+            """"12","","hi","hi, there's a dog"""",
+            listOf("12", "", "hi", "hi,there'sadog")
+        ),
+        arrayOf(
+            """"12","",,hi,"hi, there's a dog"""",
+            listOf("12", "", "", "hi", "hi,there'sadog")
+        ),
+        arrayOf(
+            """"Org ID","Org Name"""",
+            listOf("orgid", "orgname")
+        )
+    )
 }

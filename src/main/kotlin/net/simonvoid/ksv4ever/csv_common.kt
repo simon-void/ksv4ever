@@ -4,16 +4,16 @@ import net.simonvoid.ksv4ever.Util.toItemList
 
 
 inline fun <reified T : Any> csv2List(
-        sourceConfig: CsvSourceConfig,
-        noinline logInvalidLine: ((line: String, msg: String)->Unit)? = null,
-        noinline logRejectedRecord: ((record: String)->Unit)? = null,
-        noinline logConversionError: ((record: String, msg: String)->Unit)? = null,
-        noinline logSummary: ((
-        invalidLineCount: Int,
-        rejectedRecordCount: Int,
-        conversionErrorCount: Int,
-        itemsCreated: Int,
-    )->Unit)? = null
+    sourceConfig: CsvSourceConfig,
+    noinline logInvalidLine: ((line: String, msg: String) -> Unit)? = null,
+    noinline logRejectedRecord: ((record: String) -> Unit)? = null,
+    noinline logConversionError: ((record: String, msg: String) -> Unit)? = null,
+    noinline logSummary: ((
+            invalidLineCount: Int,
+            rejectedRecordCount: Int,
+            conversionErrorCount: Int,
+            itemsCreated: Int,
+    ) -> Unit)? = null,
 ): List<T> {
     val itemFactory = ReflectiveItemFactory(T::class, sourceConfig.effectiveNormalizeColumnName)
 
