@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.simonvoid.ksv4ever"
-version = "1.0.3"  //-SNAPSHOT
+version = "1.1.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {

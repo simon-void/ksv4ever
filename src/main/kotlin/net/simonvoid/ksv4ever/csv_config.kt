@@ -8,13 +8,13 @@ import java.nio.charset.Charset
 
 
 data class CsvSourceConfig (
-        val stream: InputStream,
-        val charset: Charset = Charsets.UTF_8,
-        private val commaChar: Char = ',',
-        private val quoteChar: Char = '"',
-        val fixLine: StringModifier = ::removeBomChars,
-        val keepCsvRecord: (CsvHeader, CsvRecord) -> Boolean = keepAll,
-        private val normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes,
+    val stream: InputStream,
+    val charset: Charset = Charsets.UTF_8,
+    private val commaChar: Char = ',',
+    private val quoteChar: Char = '"',
+    val fixLine: StringModifier = ::removeBomChars,
+    val duplicateLineStrategy: HandleDuplicates = HandleDuplicates.ALLOW_DUPLICATES,
+    private val normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpace,
 ) {
     val splitByComma: LineSplitter = createLineSplitter(commaChar, quoteChar)
     val effectiveNormalizeColumnName: StringModifier = addTrimQuotesToNormalizeColumnNames(quoteChar, normalizeColumnName)
@@ -22,11 +22,9 @@ data class CsvSourceConfig (
 
 fun CsvSourceConfig.bufferedReader() = stream.bufferedReader(charset)
 
-internal fun toLowerCaseAndRemoveSpaceAndQuotes(s: String) = s.toLowerCase().removeSpace()
+internal fun toLowerCaseAndRemoveSpace(s: String) = s.toLowerCase().removeSpace()
 // removing the possible UTF-8 BOM character at the start of each line
 internal fun removeBomChars(s: String) = s.trimStart('\uFEFF', '\u200B')
-internal val keepAll: RecordPredicate = { _, _ -> true }
 
-typealias RecordPredicate = (CsvHeader, CsvRecord) -> Boolean
 typealias LineSplitter = String.() -> List<String>
 typealias StringModifier = (String) -> String

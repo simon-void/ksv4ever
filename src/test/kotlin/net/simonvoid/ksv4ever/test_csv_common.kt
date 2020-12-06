@@ -13,20 +13,20 @@ private const val DEFAULT_NR = 96
 
 @CsvRow
 data class Row1(
-        @CsvValue(name = "town") val a: String,
-        @CsvValue var nr: Int?
+    @CsvValue(name = "town") val a: String,
+    @CsvValue var nr: Int?
 )
 
 @CsvRow
 data class Row2(
-        @CsvValue(name = "town") val a: String = DEFAULT_TOWN,
-        @CsvValue var nr: Int? = DEFAULT_NR
+    @CsvValue(name = "town") val a: String = DEFAULT_TOWN,
+    @CsvValue var nr: Int? = DEFAULT_NR
 )
 
 @CsvRow
 data class Row3(
-        @CsvTimestamp(format = "[d][dd]/[M][MM]/yyyy") val date: LocalDate,
-        @CsvTimestamp(name = "date_time", format = "yyyy-[M][MM]-[d][dd] [H][HH]:mm:ss") val dateTime: LocalDateTime?
+    @CsvTimestamp(format = "[d][dd]/[M][MM]/yyyy") val date: LocalDate,
+    @CsvTimestamp(name = "date_time", format = "yyyy-[M][MM]-[d][dd] [H][HH]:mm:ss") val dateTime: LocalDateTime?
 )
 
 @CsvRow
@@ -36,8 +36,8 @@ data class Row4(
 
 @CsvRow
 data class Row5(
-        @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness1: FuzyBoolean = FuzyBoolean.UNKNOWN,
-        @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness2: FuzyBoolean?
+    @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness1: FuzyBoolean = FuzyBoolean.UNKNOWN,
+    @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness2: FuzyBoolean?
 )
 
 enum class FuzyBoolean {
@@ -60,8 +60,11 @@ class TestParseCsv {
 
     @Test(dataProvider = "csvParsingTestDataProvider")
     fun `test basic csv parsing`(msg: String, csv: String, expectedRows: List<Row1>) {
-        val actualRows: List<Row1> = csv2List(csv.toCsvSourceConfig())
-        assertEquals(actualRows, expectedRows, msg)
+        val actualRows1: Sequence<ProtoRow<Row1>> = csv2Sequence(csv.toCsvSourceConfig())
+        assertEquals(actualRows1.filterSuccessToList(), expectedRows, msg)
+
+        val actualRows2: List<Row1> = csv2List(csv.toCsvSourceConfig())
+        assertEquals(actualRows2, expectedRows, msg)
     }
 
     @DataProvider
@@ -69,10 +72,10 @@ class TestParseCsv {
         arrayOf(
             "basic functionality, expected: get two instances",
             """
-                |town,nr
-                |Copenhagen,53
-                |Malmo, 64
-                """.trimMargin(),
+            |town,nr
+            |Copenhagen,53
+            |Malmo, 64
+            """.trimMargin(),
             listOf(
                 Row1("Copenhagen", 53),
                 Row1("Malmo", 64)
@@ -81,9 +84,9 @@ class TestParseCsv {
         arrayOf(
             "missing nullable value, expected: initialize value with null",
             """
-                |town,nr
-                |Malmo,
-                """.trimMargin(),
+            |town,nr
+            |Malmo,
+            """.trimMargin(),
             listOf(
                 Row1("Malmo", null)
             )
@@ -92,9 +95,11 @@ class TestParseCsv {
 
     @Test(dataProvider = "csvParsingWithDefaultParamsTestDataProvider")
     fun `test csv parsing with parameter default values`(msg: String, csv: String, expectedRows: List<Row2>) {
-        val actualRows: List<Row2> = csv2List(csv.toCsvSourceConfig())
+        val actualRows1: Sequence<ProtoRow<Row2>> = csv2Sequence(csv.toCsvSourceConfig())
+        assertEquals(actualRows1.filterSuccessToList(), expectedRows, msg)
 
-        assertEquals(actualRows, expectedRows, msg)
+        val actualRows2: List<Row2> = csv2List(csv.toCsvSourceConfig())
+        assertEquals(actualRows2, expectedRows, msg)
     }
 
     @DataProvider
@@ -102,9 +107,9 @@ class TestParseCsv {
         arrayOf(
             "missing non-nullable value with default value, expected: initialize value with default value",
             """
-                |town,nr
-                |, 64
-                """.trimMargin(),
+            |town,nr
+            |, 64
+            """.trimMargin(),
             listOf(
                 Row2(
                     DEFAULT_TOWN,
@@ -115,9 +120,9 @@ class TestParseCsv {
         arrayOf(
             "missing nullable value with default value, expected: initialize value with default value",
             """
-                |town,nr
-                |Cairo,
-                """.trimMargin(),
+            |town,nr
+            |Cairo,
+            """.trimMargin(),
             listOf(
                 Row2(
                     "Cairo",
@@ -129,9 +134,11 @@ class TestParseCsv {
 
     @Test(dataProvider = "csvTimestampParsingTestDataProvider")
     fun `test csv timestamp parsing`(msg: String, csv: String, expectedRows: List<Row3>) {
-        val actualRows: List<Row3> = csv2List(csv.toCsvSourceConfig())
+        val actualRows1: Sequence<ProtoRow<Row3>> = csv2Sequence(csv.toCsvSourceConfig())
+        assertEquals(actualRows1.filterSuccessToList(), expectedRows, msg)
 
-        assertEquals(actualRows, expectedRows, msg)
+        val actualRows2: List<Row3> = csv2List(csv.toCsvSourceConfig())
+        assertEquals(actualRows2, expectedRows, msg)
     }
 
     @DataProvider
@@ -139,10 +146,10 @@ class TestParseCsv {
         arrayOf(
             "converting timestamp values, expected: initialize value with timestamp value",
             """
-                |date,date_time
-                |26/04/2018, 2019-03-27 10:15:30
-                |2/4/2018, 2019-3-7 8:15:30
-                """.trimMargin(),
+            |date,date_time
+            |26/04/2018, 2019-03-27 10:15:30
+            |2/4/2018, 2019-3-7 8:15:30
+            """.trimMargin(),
             listOf(
                 Row3(
                     LocalDate.of(2018, 4, 26),
@@ -157,9 +164,9 @@ class TestParseCsv {
         arrayOf(
             "converting nullable timestamp values, expected: missing value becomes null",
             """
-                |date,date_time
-                |11/12/2015,
-                """.trimMargin(),
+            |date,date_time
+            |11/12/2015,
+            """.trimMargin(),
             listOf(
                 Row3(
                     LocalDate.of(2015, 12, 11),
@@ -171,9 +178,11 @@ class TestParseCsv {
 
     @Test(dataProvider = "csvTimestampParsingInMultipleFormatsTestDataProvider")
     fun `test csv timestamp parsing with multiple formats`(msg: String, csv: String, expectedRows: List<Row4>) {
-        val actualRows: List<Row4> = csv2List(csv.toCsvSourceConfig())
+        val actualRows1: Sequence<ProtoRow<Row4>> = csv2Sequence(csv.toCsvSourceConfig())
+        assertEquals(actualRows1.filterSuccessToList(), expectedRows, msg)
 
-        assertEquals(actualRows, expectedRows, msg)
+        val actualRows2: List<Row4> = csv2List(csv.toCsvSourceConfig())
+        assertEquals(actualRows2, expectedRows, msg)
     }
 
     @DataProvider
@@ -181,10 +190,10 @@ class TestParseCsv {
         arrayOf(
             "converting timestamp values, expected: initialize value with timestamp value",
             """
-                |date
-                |26/04/2018
-                |2013-10-12
-                """.trimMargin(),
+            |date
+            |26/04/2018
+            |2013-10-12
+            """.trimMargin(),
             listOf(
                 Row4(LocalDate.of(2018, 4, 26)),
                 Row4(LocalDate.of(2013, 10, 12))
@@ -194,9 +203,11 @@ class TestParseCsv {
 
     @Test(dataProvider = "csvGenericTestDataProvider")
     fun `test csv generic parsing`(msg: String, csv: String, expectedRows: List<Row5>) {
-        val actualRows: List<Row5> = csv2List(csv.toCsvSourceConfig())
+        val actualRows1: Sequence<ProtoRow<Row5>> = csv2Sequence(csv.toCsvSourceConfig())
+        assertEquals(actualRows1.filterSuccessToList(), expectedRows, msg)
 
-        assertEquals(actualRows, expectedRows, msg)
+        val actualRows2: List<Row5> = csv2List(csv.toCsvSourceConfig())
+        assertEquals(actualRows2, expectedRows, msg)
     }
 
     @DataProvider
@@ -204,14 +215,14 @@ class TestParseCsv {
         arrayOf(
             "converting generic values, expected: initialize value custom enum, use default FuzyBoolean.UNKNOWN if invalid or null token",
             """
-                |truthiness1,truthiness2
-                |YES, yes
-                |NO, no
-                |MAYBE, maybe
-                |UNKNOWN, unknown
-                |truly new, even more different
-                |,
-                """.trimMargin(),
+            |truthiness1,truthiness2
+            |YES, yes
+            |NO, no
+            |MAYBE, maybe
+            |UNKNOWN, unknown
+            |truly new, even more different
+            |,
+            """.trimMargin(),
             listOf(
                 Row5(
                     FuzyBoolean.YES,
@@ -241,62 +252,141 @@ class TestParseCsv {
         )
     )
 
+    @Test(dataProvider = "csvFilteringTestProvider")
+    fun `test reject items`(
+        csv: String,
+        keepItem: (Row1) -> Boolean,
+        expectedRows: List<Row1>
+    ) {
+        val actualRows: List<Row1> = csv2List(
+            sourceConfig = csv.toCsvSourceConfig(),
+            keepItem = { keepItem(it) },
+        )
+        assertEquals(actualRows, expectedRows)
+    }
+
     @DataProvider
     fun csvFilteringTestProvider(): Array<Array<Any>> = arrayOf(
         arrayOf(
-            "Filtering will throw an Exception as a column name is missing",
             """
-                |town,nr
-                |Copenhagen,1
-                |Copenhagen, 5
-                """.trimMargin(),
+            |town,nr
+            |Copenhagen,1
+            |Copenhagen, 5
+            """.trimMargin(),
+            { row: Row1 -> row.nr?.let { it > 3 } ?: false },
             listOf(
-                Row1("Copenhagen", 1),
                 Row1("Copenhagen", 5)
             )
         ),
         arrayOf(
-            "Filter will discard nothing, expected: get two instances",
             """
-                |town,nr
-                |Copenhagen,1
-                |Copenhagen, 5
-                """.trimMargin(),
+            |town,nr
+            |Copenhagen,1
+            |Malmo, 1
+            """.trimMargin(),
+            { row: Row1 -> row.a.startsWith("M") },
             listOf(
-                Row1("Copenhagen", 1),
-                Row1("Copenhagen", 5)
+                Row1("Malmo", 1)
             )
         ),
-        arrayOf(
-            "Filter will discard Malmo, expected: get one instance",
-            """
-                |town,nr
-                |Copenhagen,1
-                |Malmo, 1
-                """.trimMargin(),
-            listOf(
-                Row1("Copenhagen", 1)
-            )
-        ),
-        arrayOf(
-            "Filter will discard nr 2, expected: get one instance",
-            """
-                |town,nr
-                |Copenhagen,1
-                |Copenhagen, 2
-                """.trimMargin(),
-            listOf(
-                Row1("Copenhagen", 1)
-            )
-        ),
-        arrayOf(
-            "filter will discard both Malmo and nr 2, expected: get 0 instances",
-            """
-                |town,nr
-                |Copenhagen,2
-                |Malmo, 1
-                """.trimMargin(),
-            emptyList<Row1>()
+    )
+
+    @Test(dataProvider = "modifyItemTestProvider")
+    fun `test modify items`(
+        csv: String,
+        modifyItem: (Row1) -> Row1,
+        expectedRows: List<Row1>
+    ) {
+        val actualRows: List<Row1> = csv2List(
+            sourceConfig = csv.toCsvSourceConfig(),
+            modifyItem = { modifyItem(it) },
         )
+        assertEquals(actualRows, expectedRows)
+    }
+
+    @DataProvider
+    fun modifyItemTestProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            """
+            |town,nr
+            |open from 9AM?15PM,1
+            |open from 9AM?15PM?, 5
+            """.trimMargin(),
+            { row: Row1 ->
+                if (row.a.contains("M?1")) {
+                    row.copy(a = row.a.replace("M?1", "M-1"))
+                } else {
+                    row
+                }
+            },
+            listOf(
+                Row1("open from 9AM-15PM", 1),
+                Row1("open from 9AM-15PM?", 5),
+            )
+        ),
+    )
+
+    @Test(dataProvider = "removeConsecutiveDuplicatesTestProvider")
+    fun `test removeConsecutiveDuplicates`(
+        csv: String,
+        duplicateLineStrategy: HandleDuplicates,
+        expectedRows: List<Row1>
+    ) {
+        val actualRows: List<Row1> = csv2List(
+            sourceConfig = CsvSourceConfig(
+                stream = csv.byteInputStream(),
+                duplicateLineStrategy = duplicateLineStrategy
+            ),
+        )
+        assertEquals(actualRows, expectedRows)
+    }
+
+    @DataProvider
+    fun removeConsecutiveDuplicatesTestProvider(): Array<Array<Any>> = arrayOf(
+        arrayOf(
+            """
+            |town,nr
+            |Copenhagen,1
+            |Copenhagen,1
+            |Malmo, 1
+            |Copenhagen,1
+            """.trimMargin(),
+            HandleDuplicates.ONLY_DISTINCT_ENTRIES__POTENTIALLY_EXPENSIVE,
+            listOf(
+                Row1("Copenhagen", 1),
+                Row1("Malmo", 1),
+            )
+        ),
+        arrayOf(
+            """
+            |town,nr
+            |Copenhagen,1
+            |Copenhagen,1
+            |Malmo, 1
+            |Copenhagen,1
+            """.trimMargin(),
+            HandleDuplicates.REMOVE_CONSECUTIVE_DUPLICATES,
+            listOf(
+                Row1("Copenhagen", 1),
+                Row1("Malmo", 1),
+                Row1("Copenhagen", 1),
+            )
+        ),
+        arrayOf(
+            """
+            |town,nr
+            |Copenhagen,1
+            |Copenhagen,1
+            |Malmo, 1
+            |Copenhagen,1
+            """.trimMargin(),
+            HandleDuplicates.ALLOW_DUPLICATES,
+            listOf(
+                Row1("Copenhagen", 1),
+                Row1("Copenhagen", 1),
+                Row1("Malmo", 1),
+                Row1("Copenhagen", 1),
+            )
+        ),
     )
 }

@@ -53,55 +53,35 @@ object Util {
         originalNormalizeColumnNames(it.trimThenTrimQuotesThenTrim(quoteChar))
     }
 
-    fun <T : Any> Sequence<ParsedCsvLine<T>>.toItemList(
-        logInvalidLine: ((line: String, msg: String) -> Unit)? = null,
-        logRejectedRecord: ((record: String) -> Unit)? = null,
-        logConversionError: ((record: String, msg: String) -> Unit)? = null,
-        logSummary: ((
-            invalidLineCount: Int,
-            rejectedRecordCount: Int,
-            conversionErrorCount: Int,
-            itemsCreated: Int,
-        ) -> Unit)? = null,
-    ): List<T> {
-
-        var invalidLinesCount = 0
-        var rejectedCsvRecordCount = 0
-        var conversionExceptionCount = 0
-
-        return this.mapNotNull { parsedCsvLine: ParsedCsvLine<T> ->
-            when (parsedCsvLine) {
-                is ParsedCsvLine.InvalidLineError -> {
-                    invalidLinesCount++
-                    logInvalidLine?.let { logInvalidLine(parsedCsvLine.line, parsedCsvLine.msg) }
-                    null
-                }
-                is ParsedCsvLine.RejectedRecord -> {
-                    rejectedCsvRecordCount++
-                    logRejectedRecord?.let { logRejectedRecord(parsedCsvLine.record) }
-                    null
-                }
-                is ParsedCsvLine.ConversionError -> {
-                    conversionExceptionCount++
-                    logConversionError?.let { logConversionError(parsedCsvLine.record, parsedCsvLine.msg) }
-                    null
-                }
-                is ParsedCsvLine.Success -> {
-                    parsedCsvLine.item
-                }
-            }
-        }.toList().also {
-            val itemsCreatedCount = it.size
-            logSummary?.let {
-                logSummary(
-                    invalidLinesCount,
-                    rejectedCsvRecordCount,
-                    conversionExceptionCount,
-                    itemsCreatedCount,
-                )
-            }
-        }
-    }
-
     fun String.removeSpace() = this.replace(" ", "")
+
+    /**
+     * Filters duplicate elements of a sequence in accordance to the [HandleDuplicates] parameter.
+     */
+    fun <T : Any> Sequence<T>.handleConsecutiveDuplicates(howToHandleDuplicates: HandleDuplicates): Sequence<T> =
+        when (howToHandleDuplicates) {
+            HandleDuplicates.ALLOW_DUPLICATES -> this
+            HandleDuplicates.REMOVE_CONSECUTIVE_DUPLICATES -> {
+                var priorEntry: T? = null
+                this.mapNotNull { entry ->
+                    if (entry == priorEntry) {
+                        null
+                    } else {
+                        priorEntry = entry
+                        entry
+                    }
+                }
+            }
+            HandleDuplicates.ONLY_DISTINCT_ENTRIES__POTENTIALLY_EXPENSIVE -> this.distinct()
+        }
+}
+
+enum class HandleDuplicates {
+    /** no attempt to remove duplicates lines in the csv file is undertaken. */
+    ALLOW_DUPLICATES,
+    /** consecutive line duplicates are removed. Since this only requires the latest line to be memorised, it can be done efficiently. */
+    REMOVE_CONSECUTIVE_DUPLICATES,
+    /** removes all duplicates (by invoking `sequence.distinct`) which means only the first occurrence of an element will remain.
+     * You mustn't use this option, if you use `csv2sequence` in order to avoid having all lines in memory at the same time. */
+    ONLY_DISTINCT_ENTRIES__POTENTIALLY_EXPENSIVE;
 }

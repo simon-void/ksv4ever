@@ -4,14 +4,20 @@ fun String.toCsvSourceConfig(
         commaChar: Char = ',',
         quoteChar: Char = '"',
         fixLine: StringModifier = ::removeBomChars,
-        keepCsvRecord: RecordPredicate = keepAll,
-        normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpaceAndQuotes
+        normalizeColumnName: StringModifier = ::toLowerCaseAndRemoveSpace
 ) = CsvSourceConfig(
     stream = this.byteInputStream(),
     charset = Charsets.UTF_8,
     commaChar = commaChar,
     quoteChar = quoteChar,
     fixLine = fixLine,
-    keepCsvRecord = keepCsvRecord,
     normalizeColumnName = normalizeColumnName
 )
+
+fun <T: Any> Sequence<ProtoRow<T>>.filterSuccessToList() = this.mapNotNull {
+    if(it is ProtoRow.Success<T>) {
+        it.item
+    } else {
+        null
+    }
+}.toList()
