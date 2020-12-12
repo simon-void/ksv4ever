@@ -2,11 +2,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.4.20"
+    id("maven-publish")
 }
 
-group = "net.simonvoid.ksv4ever"
-version = "1.1.0"
+group = "net.simonvoid"
+version = "1.1.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.targetCompatibility = java.sourceCompatibility
 
 repositories {
     mavenCentral()
@@ -32,5 +34,22 @@ tasks {
 
     withType<Test> {
         useTestNG()
+    }
+
+    val sourcesJar by creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(sourceSets.main.get().allSource)
+    }
+
+    val javadocJar by creating(Jar::class) {
+        dependsOn.add(javadoc)
+        archiveClassifier.set("javadoc")
+        from(javadoc)
+    }
+
+    artifacts {
+        archives(sourcesJar)
+        archives(javadocJar)
+        archives(jar)
     }
 }
