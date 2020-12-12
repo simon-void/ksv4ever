@@ -3,10 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.4.20"
     id("maven-publish")
+    id("java-library")
 }
 
 group = "net.simonvoid"
-version = "1.1.1"
+version = "1.1.2"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 java.targetCompatibility = java.sourceCompatibility
 
