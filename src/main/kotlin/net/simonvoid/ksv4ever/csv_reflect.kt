@@ -23,7 +23,7 @@ annotation class CsvValue(
 @MustBeDocumented
 annotation class CsvTimestamp(
         val name: String = CSV_DEFAULT_NAME,
-        /**format is either a single timestamp pattern (e.g. "yyyy/MM/dd" ) or multiple separated by '|' (e.g. "yyyy/MM/dd|dd-MM-yyyy" )*/
+        /**format is either a single timestamp pattern (e.g. "yyyy/MM/dd") or multiple separated by '|' (e.g. "yyyy/MM/dd|dd-MM-yyyy")*/
     val format: String,
 )
 
@@ -196,16 +196,16 @@ class ReflectiveItemFactory<Row : Any>(
         }
 
         csvRowParamByNormalizedColumnName = if (constructorParams.size == csvRowParamsByNormalizedColumnName.size) {
-            csvRowParamsByNormalizedColumnName.entries.map { (normalizeParamName, csvRowParams) ->
+            csvRowParamsByNormalizedColumnName.entries.associate { (normalizeParamName, csvRowParams) ->
                 normalizeParamName to csvRowParams.single()
-            }.toMap()
+            }
         } else {
             val paramNamesByNormalizedParamName: Map<String, List<String>> =
                 csvRowParamsByNormalizedColumnName.entries.filter { (_, csvRowParams) ->
                     csvRowParams.size > 1
-                }.map { (normalizeParamName, csvRowParams) ->
+                }.associate { (normalizeParamName, csvRowParams) ->
                     normalizeParamName to csvRowParams.map { csvRowParam -> csvRowParam.paramName }
-                }.toMap()
+                }
             val problematicNormalizedParamNames: String =
                 paramNamesByNormalizedParamName.keys.joinToString(prefix = "[", postfix = "]")
             val affectedParameterNames: String =
@@ -261,9 +261,9 @@ class ReflectiveItemFactory<Row : Any>(
 
         fun normalizeKeys(actualNamesWithToken: Map<String, String?>): Map<String, String?> {
             // normalize parameter names
-            val normalizedNamesWithValue: Map<String, String?> = actualNamesWithToken.entries.map { (name, token) ->
-                name.normalizeParamName() to token
-            }.toMap()
+            val normalizedNamesWithValue: Map<String, String?> = actualNamesWithToken.entries.associate { (name, token) ->
+                    name.normalizeParamName() to token
+                }
             if (actualNamesWithToken.size != normalizedNamesWithValue.size) {
                 throw IllegalArgumentException(
                     """

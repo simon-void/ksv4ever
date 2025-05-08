@@ -1,9 +1,9 @@
-## KSV4EVER - robust mapping of comma separated values (csv-files) to user-defined data classes for Kotlin on the JVM
+## KSV4EVER - robust mapping of comma-separated values (csv-files) to user-defined data classes for Kotlin on the JVM
 
 The robustness stems from csv columns being identified by (normalized) column name instead of the column index,
 which makes this solution work seamlessly in situations in which columns have been swapped or new columns have been inserted.
-The names of column might even have changed slightly. (The default name normalization removes lower/uppercase differences as well as spaces.)
-This property is very useful if the source of the csv-file(s) is not within your organization, and you can't enforce a certain format 
+The names of the column might even have changed slightly. (The default name normalization removes lower/uppercase differences as well as spaces.)
+This property is invaluable if the source of the csv-file(s) is not within your organization, and you can't enforce a certain format 
 (, e.g. if you regularly import csv-files from government sites). 
 
 You only have to annotate a data class with `@CsvRow` and it’s properties with either 
@@ -15,8 +15,8 @@ Because this library is written in Kotlin, you can define the **nullability** of
 @CsvRow data class DataRow(
     @CsvValue(name = "RQIA") val id: String,
     @CsvValue(name = "Number of beds") val bedCount: Int?, // types can be nullable
-    val addressLine1: String,                              // without annotation it's assumed the the column name is the the property name
-    val city: String = "London",                           // without value in the csv file the Kotlin default value is used
+    val addressLine1: String,                              // without annotation, it's assumed the column name is the property name
+    val city: String = "London",                           // without a value in the csv file, the Kotlin default value is used
     @CsvTimestamp(name = "latest check", format = "yyyy/MM/dd|dd/MM/yyyy")  
     val latestCheckDate: LocalDate?,                       // multiple formats can be provided separated by '|'
     @CsvGeneric(name = "offers Cola, Sprite or Fanta", converterName = "beverageBoolean")
@@ -49,7 +49,7 @@ This code is actually executed in the testclass [TestExample](https://github.com
 
 via a source dependency!
 
-First add this git-repository to your projects **settings.gradle.kts** file:
+First, add this git-repository to your projects **settings.gradle.kts** file:
 ```kotlin
 sourceControl {
     gitRepository(java.net.URI.create("https://github.com/simon-void/ksv4ever")) {
@@ -90,10 +90,10 @@ for **LocalDate** and **LocalDateTime**.
 
 annotation parameter:
 * name (optional): the name of the column this property is instantiated from. If no name is provided, the name of the annotated property is used.
-* format: format is either a single timestamp pattern (e.g. "yyyy/MM/dd" ) or multiple patterns separated by '|' (e.g. "yyyy/MM/dd|dd-MM-yyyy" )
+* format: a format is either a single timestamp pattern (e.g. "yyyy/MM/dd") or multiple patterns separated by '|' (e.g. "yyyy/MM/dd|dd-MM-yyyy")
 
 #### @CsvGeneric
-for user-defined mappings to any type. It just has to be assured that the user-defined converter
+For user-defined mappings to any type. It just has to be assured that the user-defined converter
 is registered before the annotation is used. This is done by invoking the global `registerConverter` function.
 ```text
 fun <T: Any> registerGenericConverter(
@@ -122,8 +122,8 @@ val dataRows: List<DataRow> = csv2List(
 ```
 Invoking `csv2List` will close `csvStream`.
 
-`csv2List` has actually a bunch of optional parameters - apart from the main one that takes in a `CsvSourceConfig` -
-that provide statistics about how many rows where discarded/parsed. (As the naming suggest the main idea here is to allow for logging.)
+`csv2List` has actually a bunch of optional parameters, apart from the main one that takes in a `CsvSourceConfig` -
+that provide statistics about how many rows where discarded/parsed. (As the naming suggests the main idea here is to allow for logging.)
 * modifyItem: `(item: T) -> T`: while `csvSourceConfig.fixLine` works on a `String` level, this function modifies items on the resulting class level.
 * keepItem: `(item: T) -> Boolean`: a predicate to remove unneeded items from the resulting list. Make sure to check if the option `csvSourceConfig.removeConsecutiveDuplicates` as well. 
 * logInvalidLine: `(line: String, msg: String)->Unit`: the line and reason of why a certain row/line was dropped from the csv (, mostly because the number of commas didn't fit).
@@ -165,14 +165,14 @@ val protoRows: Sequence<ProtoRow<DataRow>> = csv2Sequence(
   )    
 )
 
-val dataRows: Sequence<DataRow> = protoRows.filterIsInstance<ProtoRow.Success>().map {
+val dataRows: Sequence<DataRow> = protoRows.filterIsInstance<Success<DataRow>>().map {
     it.item
 }
 ```
 with `ProtoRow` defined like this
 ```kotlin
 sealed class ProtoRow<out T:Any> {
-  // if the line in the csv file had the wrong amount of commas (outside of quotes and compared to the headerline)
+  // if the line in the csv file had the wrong number of commas (outside of quotes and compared to the headerline)
   class InvalidLineError(val line: String, val msg: String): ProtoRow<Nothing>()
   // if not all parts of the line could be converted into the expected type (as defined in your @Row annotated data class)
   class ConversionError(val record: String, val msg: String): ProtoRow<Nothing>()
@@ -195,14 +195,14 @@ But there are more configuration options:
 * fixLine: `(String)->String`: this function is used on every line of the csv file. The idea is to remove e.g. illegal characters. The default removes invisible BOM characters (`\uFEFF` and `\u200B`) from the start of the line.
 * duplicateLineStrategy: `HandleDuplicates`: How to handle duplicate lines in the csv file. Possible options:
   - `ALLOW_DUPLICATES`: duplicates are allowed. This is the default.
-  - `REMOVE_CONSECUTIVE_DUPLICATES`: consecutive duplicates are removed (which is a computationally cheap memory wise).
-  - `ONLY_DISTINCT_ENTRIES__POTENTIALLY_EXPENSIVE`: removes all duplicates. Only the first occurence of a line remains.
+  - `REMOVE_CONSECUTIVE_DUPLICATES`: consecutive duplicates are removed (which is a computationally inexpensive memory wise).
+  - `ONLY_DISTINCT_ENTRIES__POTENTIALLY_EXPENSIVE`: removes all duplicates. Only the first occurrence of a line remains.
     This requires all distinct lines/rows of the csv file to be in memory at the same time, so you might not want to use
     this option if your csv file is more than a gigabyte in size.
 * normalizeColumnName: `(String)->String`: if we don't control the source of the csv data (e.g. because the files come from an external source),
  it often happens the column names change slightly between different versions. the `normalizeColumnName`-parameter is supposed to make
- a configuration more robust against such changes. The default version removes all spaces from the column names an maps them to their lower case version.
- If you have different requirements (or the default version leads to collisions of normalized column names) provide your own function.
+ a configuration more robust against such changes. The default version removes all spaces from the column names and maps them to their lower case version.
+ If you have different requirements (or the default version leads to collisions of normalized column names), provide your own function.
 
 Here an example of how to define a predicate for the optional `keepCsvRecord`-parameter: (it allows only lines where the number of beds is bigger than 2)
 ```kotlin
@@ -235,4 +235,4 @@ provides as argument `rejectedItemCount` to `CsvSourceConfig.logSummary`.
 This library came into being as a fork of the [ksv library](https://github.com/whichdigital/ksv) 
 which I created during my time working for [Which?](https://www.which.co.uk/).
 
-I decided to fork it, so that I can continue to take care of it.
+I decided to fork it so that I could continue to take care of it.
