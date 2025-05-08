@@ -29,7 +29,7 @@ class TestExample {
     @BeforeMethod
     fun setup() {
         registerGenericConverter("beverageBoolean") {
-            it.toLowerCase() == "indeed"
+            it.lowercase() == "indeed"
         }
     }
 

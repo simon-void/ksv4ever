@@ -51,7 +51,7 @@ class TestParseCsv {
         // for test case `test csv generic parsing`
         registerGenericConverter("fuzyBooleanConverter") { token: String ->
             try {
-                FuzyBoolean.valueOf(token.toUpperCase())
+                FuzyBoolean.valueOf(token.uppercase())
             } catch (e: IllegalArgumentException) {
                 FuzyBoolean.UNKNOWN
             }

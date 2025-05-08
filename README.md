@@ -59,7 +59,7 @@ sourceControl {
 ```
 then add this dependency (in its latest git-tagged version) to your **build.gradle.kts** file:
 ```kotlin
-implementation("net.simonvoid.ksv4ever:ksv4ever:1.1.0")
+implementation("net.simonvoid.ksv4ever:ksv4ever:1.1.3")
 ``` 
 Done.
 
@@ -95,7 +95,7 @@ annotation parameter:
 #### @CsvGeneric
 for user-defined mappings to any type. It just has to be assured that the user-defined converter
 is registered before the annotation is used. This is done by invoking the global `registerConverter` function.
-```kotlin
+```text
 fun <T: Any> registerGenericConverter(
   converterName: String,
   converter: (String) -> T
@@ -220,8 +220,8 @@ private fun onlyRowsWithAtLeastTwoBeds(row: DataRow): Boolean = row.bedCount?.le
 ```
 Of course this filter operation could also be implemented on  `dataRows` after the complete csv source has been parsed:
 ```kotlin
-val dataRows: List<DataRow> = csv2List(CsvSourceConfig(csvStream)).filter {row ->
-  row.bedCount?.let{nrOfBeds->nrOfBeds>=2} ?: false
+val dataRows: List<DataRow> = csv2List(CsvSourceConfig(csvStream)).filter {row: DataRow ->
+  row.bedCount?.let{nrOfBeds: Int -> nrOfBeds>=2} ?: false
 }
 ```
 But doing it after the `List<DataRow>` is created meanst that all the items have already been in memory at the same time.

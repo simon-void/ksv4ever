@@ -22,7 +22,7 @@ data class CsvSourceConfig (
 
 fun CsvSourceConfig.bufferedReader() = stream.bufferedReader(charset)
 
-internal fun toLowerCaseAndRemoveSpace(s: String) = s.toLowerCase().removeSpace()
+internal fun toLowerCaseAndRemoveSpace(s: String) = s.lowercase().removeSpace()
 // removing the possible UTF-8 BOM character at the start of each line
 internal fun removeBomChars(s: String) = s.trimStart('\uFEFF', '\u200B')
 

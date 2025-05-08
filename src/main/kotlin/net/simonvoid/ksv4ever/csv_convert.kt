@@ -44,7 +44,7 @@ fun convert(
 }
 
 private val truthyValues: Set<String> = setOf("true", "yes", "y", "1")
-private fun String.isTruthy(): Boolean = truthyValues.contains(this.toLowerCase())
+private fun String.isTruthy(): Boolean = truthyValues.contains(this.lowercase())
 
 private val dateTimeFormatterByFormat: MutableMap<String, DateTimeFormatter> = mutableMapOf()
 
@@ -126,7 +126,7 @@ class ConversionException(
         private val targetClassifier: KClassifier?,
         override val cause: Exception,
 ): IllegalArgumentException() {
-    override val message: String?
+    override val message: String
         get() {
             val targetClassName = (targetClassifier as? KClass<*>)?.simpleName ?: "unknown"
             val reason = "${cause.javaClass.simpleName}: ${cause.message}"

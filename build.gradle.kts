@@ -1,9 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.0-RC"
-    id("maven-publish")
-    id("java-library")
+    kotlin("jvm") version "2.1.20"
 }
 
 group = "net.simonvoid"
@@ -18,8 +16,8 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    testImplementation("org.testng:testng:7.3.0")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("org.testng:testng:7.4.0")
+    testImplementation("io.mockk:mockk:1.14.2")
 }
 
 tasks {
@@ -28,7 +26,7 @@ tasks {
             freeCompilerArgs = listOf("-Xjsr305=strict")
             jvmTarget = java.sourceCompatibility.toString()
             kotlinOptions {
-                languageVersion = "1.4"
+                languageVersion = "2.1"
             }
         }
     }
