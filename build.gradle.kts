@@ -1,36 +1,37 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "2.1.20"
+    `java-library`
 }
 
 group = "net.simonvoid"
-version = "1.1.4"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
-java.targetCompatibility = java.sourceCompatibility
+version = "2.0.0"
+
+kotlin {
+    jvmToolchain(17)
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        run {
+            extraWarnings.set(true)
+            // suppress specific extra warning, because of https://youtrack.jetbrains.com/issue/KT-73736
+            // might be fixed by now
+            freeCompilerArgs.add("-Xsuppress-warning=UNUSED_ANONYMOUS_PARAMETER")
+        }
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation(kotlin("reflect"))
 
-    testImplementation("org.testng:testng:7.4.0")
+    testImplementation("org.testng:testng:7.11.0")
     testImplementation("io.mockk:mockk:1.14.2")
 }
 
 tasks {
-    withType<KotlinCompile> {
-        kotlinOptions {
-            freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget = java.sourceCompatibility.toString()
-            kotlinOptions {
-                languageVersion = "2.1"
-            }
-        }
-    }
-
     withType<Test> {
         useTestNG()
     }

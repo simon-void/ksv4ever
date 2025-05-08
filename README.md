@@ -59,7 +59,7 @@ sourceControl {
 ```
 then add this dependency (in its latest git-tagged version) to your **build.gradle.kts** file:
 ```kotlin
-implementation("net.simonvoid.ksv4ever:ksv4ever:1.1.3")
+implementation("net.simonvoid.ksv4ever:ksv4ever:2.0.0")
 ``` 
 Done.
 
