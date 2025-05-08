@@ -72,7 +72,7 @@ class CsvRecord private constructor(
     private val elements: List<String>
 ) {
     private fun get(index: Int): String? = if (index < elements.size) elements[index] else null
-    fun getAsNonBlankStringOrNull(index: Int): String? =get(index)?.let { if (it.isNotBlank()) it else null }
+    fun getAsNonBlankStringOrNull(index: Int): String? =get(index)?.let { it.ifBlank { null } }
 
     override fun toString() = "CsvRecord(${elements.joinToString { "\"$it\"" }})"
 

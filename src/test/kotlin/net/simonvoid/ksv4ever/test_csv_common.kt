@@ -36,11 +36,11 @@ data class Row4(
 
 @CsvRow
 data class Row5(
-    @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness1: FuzyBoolean = FuzyBoolean.UNKNOWN,
-    @CsvGeneric(converterName = "fuzyBooleanConverter") val truthiness2: FuzyBoolean?
+    @CsvGeneric(converterName = "fuzzyBooleanConverter") val truthiness1: FuzzyBoolean = FuzzyBoolean.UNKNOWN,
+    @CsvGeneric(converterName = "fuzzyBooleanConverter") val truthiness2: FuzzyBoolean?
 )
 
-enum class FuzyBoolean {
+enum class FuzzyBoolean {
     YES, NO, MAYBE, UNKNOWN;
 }
 
@@ -49,11 +49,11 @@ class TestParseCsv {
     @BeforeTest
     fun setup() {
         // for test case `test csv generic parsing`
-        registerGenericConverter("fuzyBooleanConverter") { token: String ->
+        registerGenericConverter("fuzzyBooleanConverter") { token: String ->
             try {
-                FuzyBoolean.valueOf(token.uppercase())
+                FuzzyBoolean.valueOf(token.uppercase())
             } catch (e: IllegalArgumentException) {
-                FuzyBoolean.UNKNOWN
+                FuzzyBoolean.UNKNOWN
             }
         }
     }
@@ -225,27 +225,27 @@ class TestParseCsv {
             """.trimMargin(),
             listOf(
                 Row5(
-                    FuzyBoolean.YES,
-                    FuzyBoolean.YES
+                    FuzzyBoolean.YES,
+                    FuzzyBoolean.YES
                 ),
                 Row5(
-                    FuzyBoolean.NO,
-                    FuzyBoolean.NO
+                    FuzzyBoolean.NO,
+                    FuzzyBoolean.NO
                 ),
                 Row5(
-                    FuzyBoolean.MAYBE,
-                    FuzyBoolean.MAYBE
+                    FuzzyBoolean.MAYBE,
+                    FuzzyBoolean.MAYBE
                 ),
                 Row5(
-                    FuzyBoolean.UNKNOWN,
-                    FuzyBoolean.UNKNOWN
+                    FuzzyBoolean.UNKNOWN,
+                    FuzzyBoolean.UNKNOWN
                 ),
                 Row5(
-                    FuzyBoolean.UNKNOWN,
-                    FuzyBoolean.UNKNOWN
+                    FuzzyBoolean.UNKNOWN,
+                    FuzzyBoolean.UNKNOWN
                 ),
                 Row5(
-                    FuzyBoolean.UNKNOWN,
+                    FuzzyBoolean.UNKNOWN,
                     null
                 )
             )
