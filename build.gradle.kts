@@ -1,6 +1,6 @@
 
 plugins {
-    kotlin("jvm") version "2.1.20"
+    kotlin("jvm") version "2.2.0-RC"
     `java-library`
 }
 
@@ -11,12 +11,7 @@ kotlin {
     jvmToolchain(17)
     compilerOptions {
         freeCompilerArgs.add("-Xjsr305=strict")
-        run {
-            extraWarnings.set(true)
-            // suppress specific extra warning, because of https://youtrack.jetbrains.com/issue/KT-73736
-            // might be fixed by now
-            freeCompilerArgs.add("-Xsuppress-warning=UNUSED_ANONYMOUS_PARAMETER")
-        }
+        extraWarnings.set(true)
     }
 }
 
@@ -27,6 +22,10 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
 
+//    fun kotlinx(module: String) = "org.jetbrains.kotlinx:kotlinx-$module"
+//    implementation(kotlinx("io-core-jvm:0.7.0"))
+//    implementation(kotlinx("datetime-jvm:0.6.2"))
+
     testImplementation("org.testng:testng:7.11.0")
     testImplementation("io.mockk:mockk:1.14.2")
 }
@@ -36,20 +35,18 @@ tasks {
         useTestNG()
     }
 
-    val sourcesJar by creating(Jar::class) {
-        archiveClassifier.set("sources")
+    val sourcesJar = register<Jar>("sourcesJar") {
+        archiveClassifier = "sources"
         from(sourceSets.main.get().allSource)
     }
 
-    val javadocJar by creating(Jar::class) {
-        dependsOn.add(javadoc)
-        archiveClassifier.set("javadoc")
-        from(javadoc)
-    }
+    // TODO: generate javadoc via Dokka
+    // wait for Dokka to reach 2.1.0 (so that the migration of the Dokka plugin to Version2 is finished)
+    // https://github.com/Kotlin/dokka
+    // https://kotlinlang.org/docs/dokka-gradle.html
 
     artifacts {
         archives(sourcesJar)
-        archives(javadocJar)
         archives(jar)
     }
 }
